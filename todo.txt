@@ -1,0 +1,3 @@
+3 2 1 CODE! animation is broken
+[object Object] displaying when no time.
+participant names should be coloured in SVG as well as in modal

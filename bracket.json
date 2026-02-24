@@ -1,0 +1,177 @@
+[
+    {
+        "match_num": 1,
+        "winner_proceeds_to": 7,
+        "loser_proceeds_to": null,
+        "problem": "4final.md",
+        "participant1": {
+            "name": "enya",
+            "house": "C"
+        },
+        "participant2": {
+            "name": "rory",
+            "house": "B"
+        },
+        "participant1_result": "0:00:04.083158",
+        "participant2_result": "0:00:07.102265",
+        "start_time": "2026-02-24T13:12:24.924962"
+    },
+    {
+        "match_num": 2,
+        "winner_proceeds_to": 7,
+        "loser_proceeds_to": null,
+        "problem": "1triangle.md",
+        "participant1": {
+            "name": "carl",
+            "house": "C"
+        },
+        "participant2": {
+            "name": "rafi",
+            "house": "M"
+        },
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
+        "match_num": 3,
+        "winner_proceeds_to": 8,
+        "loser_proceeds_to": null,
+        "problem": "2waves.md",
+        "participant1": {
+            "name": "oscar",
+            "house": "M"
+        },
+        "participant2": {
+            "name": "milos",
+            "house": "C"
+        },
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
+        "match_num": 4,
+        "winner_proceeds_to": 8,
+        "loser_proceeds_to": null,
+        "problem": "1six.md",
+        "participant1": {
+            "name": "jin",
+            "house": "M"
+        },
+        "participant2": {
+            "name": "ebba",
+            "house": "C"
+        },
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
+        "match_num": 5,
+        "winner_proceeds_to": 9,
+        "loser_proceeds_to": null,
+        "problem": "1six.md",
+        "participant1": {
+            "name": "barton",
+            "house": "B"
+        },
+        "participant2": {
+            "name": "adrian",
+            "house": "Y"
+        },
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
+        "match_num": 6,
+        "winner_proceeds_to": 9,
+        "loser_proceeds_to": null,
+        "problem": "1stuff.md",
+        "participant1": {
+            "name": "thierry",
+            "house": "Y"
+        },
+        "participant2": {
+            "name": "caspar",
+            "house": "B"
+        },
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
+        "match_num": 7,
+        "winner_proceeds_to": null,
+        "loser_proceeds_to": null,
+        "problem": "2pirates.md",
+        "participant1": "Winner of M1",
+        "participant2": {
+            "name": "enya",
+            "house": "C"
+        },
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
+        "match_num": 8,
+        "winner_proceeds_to": null,
+        "loser_proceeds_to": null,
+        "problem": "1boat.md",
+        "participant1": "Winner of M3",
+        "participant2": "Winner of M4",
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
+        "match_num": 9,
+        "winner_proceeds_to": null,
+        "loser_proceeds_to": null,
+        "problem": "1boat.md",
+        "participant1": "Winner of M5",
+        "participant2": "Winner of M6",
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
+        "match_num": 10,
+        "problem": "3palindromes.md",
+        "participant1": null,
+        "participant2": null,
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
+        "match_num": 11,
+        "problem": "3palindromes.md",
+        "participant1": null,
+        "participant2": null,
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
+        "match_num": 12,
+        "problem": "1stuff.md",
+        "participant1": null,
+        "participant2": null,
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
+        "match_num": 13,
+        "match_type": "three_way_round_robin",
+        "sub_matches": [
+            10,
+            11,
+            12
+        ],
+        "winner": null
+    }
+]

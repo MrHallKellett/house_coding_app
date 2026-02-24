@@ -55,8 +55,8 @@ function renderBracketSVG(data) { // Renamed 'matches' to 'data' for clarity
     }
 
     // --- Standard Single Elimination Bracket Rendering (if not hybrid) ---
-    const BOX_WIDTH = 180; // Original value for single elim
-    const BOX_HEIGHT = 60;
+    const BOX_WIDTH = 180;
+    const BOX_HEIGHT = 75; // Increased height to accommodate 3 lines of text
     const HORIZONTAL_SPACING = 220; // Original value for single elim
     const VERTICAL_SPACING = 40;
 
@@ -302,18 +302,76 @@ function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
 
     svg.appendChild(rect);
 
-    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    // Make the entire group clickable
+    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    group.style.cursor = "pointer";
+    group.addEventListener("click", () => openMatchModal(match.match_num));
 
-    text.setAttribute("x", x + 10);
-    text.setAttribute("y", y + 25);
-    text.setAttribute("font-size", "14");
-    text.setAttribute("fill", "#111");
+    const p1_name_display = getParticipantNameOnly(match.participant1);
+    const p2_name_display = getParticipantNameOnly(match.participant2);
+    const p1_time_display = getParticipantTimeOnly(match.participant1_result);
+    const p2_time_display = getParticipantTimeOnly(match.participant2_result);
+    const problem_text = formatProblemName(match.problem);
 
-    text.textContent =
-        `${match.participant1 || "TBD"} vs ${match.participant2 || "TBD"}`;
+    // --- Grid-based text layout ---
+    const col1_x = x + width * 0.25; // Center of left column
+    const col2_x = x + width * 0.5;  // Center of middle column
+    const col3_x = x + width * 0.75; // Center of right column
 
-    svg.appendChild(text);
+    const row1_y = y + 22; // Baseline for first row
+    const row2_y = y + 42; // Baseline for second row
+    const row3_y = y + 62; // Baseline for third row
+
+    // Helper to create and append text elements
+    const addText = (content, x_pos, y_pos, size, weight, fill, anchor = "middle") => {
+        const el = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        el.setAttribute("x", x_pos);
+        el.setAttribute("y", y_pos);
+        el.setAttribute("font-size", size);
+        el.setAttribute("font-weight", weight);
+        el.setAttribute("fill", fill);
+        el.setAttribute("text-anchor", anchor);
+        el.textContent = content;
+        group.appendChild(el);
+    };
+
+    // Row 1: Names
+    addText(p1_name_display, col1_x, row1_y, "14", "bold", "#111");
+    addText("v", col2_x, row1_y, "12", "normal", "#6b7280");
+    addText(p2_name_display, col3_x, row1_y, "14", "bold", "#111");
+
+    // Row 2: Times
+    if (p1_time_display) {
+        addText(p1_time_display, col1_x, row2_y, "12", "normal", "#333");
+    }
+    if (p2_time_display) {
+        addText(p2_time_display, col3_x, row2_y, "12", "normal", "#333");
+    }
+
+    // Row 3: Problem Name
+    addText(problem_text, col2_x, row3_y, "12", "normal", "#6b7280");
+
+    group.appendChild(rect);
+
+    // The text elements need to be on top of the rect for the click event to work on them.
+    // Since we added them to the group, we need to re-append the rect to put it "behind" them.
+    // A cleaner way is to add the rect first, then all text elements.
+    const textElements = group.querySelectorAll('text');
+    group.innerHTML = ''; // Clear group
+    group.appendChild(rect); // Add rect first
+    textElements.forEach(el => group.appendChild(el)); // Add text elements on top
+
+    svg.appendChild(group);
 }
+
+// Define house colors
+const HOUSE_COLORS = {
+    'Y': '#DAA520', // Dark Yellow (Goldenrod)
+    'C': '#FF8C00', // Orange (DarkOrange)
+    'B': '#4682B4', // Blue (SteelBlue)
+    'M': '#228B22', // Dark Green (ForestGreen)
+    'N/A': '#6B7280' // Default gray for unspecified house
+};
 
 /**
  * Draws a connector line between two points.
@@ -349,7 +407,7 @@ function drawConnector(svg, x1, y1, x2, y2, dashed = false) {
  */
 function renderHybridBracket(svg, data, matchesByNum, threeWayFinal) {
     const BOX_WIDTH = 150;
-    const BOX_HEIGHT = 60;
+    const BOX_HEIGHT = 75; // Increased height to accommodate 3 lines of text
     const V_SPACING = 40;
     const H_SPACING = 60;
 
@@ -367,7 +425,7 @@ function renderHybridBracket(svg, data, matchesByNum, threeWayFinal) {
     // --- Calculate positions for regular elimination rounds ---
     const rounds = [];
     // Start with matches that have participants and are not placeholders
-    let currentRoundMatches = regularMatches.filter(m => m.participant1 && !m.participant1.startsWith("Winner of M"));
+    let currentRoundMatches = regularMatches.filter(m => m.participant1 && (typeof m.participant1 === 'string' ? !m.participant1.startsWith("Winner of M") : true));
     if (currentRoundMatches.length > 0) {
         rounds.push(currentRoundMatches);
     }
@@ -500,6 +558,14 @@ function createText(x, y, text) {
     return el;
 }
 
+function createTextSpan(text, dy = 0) {
+    const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+    // x attribute is removed to allow text-anchor to control alignment
+    tspan.setAttribute("dy", `${dy}px`);
+    tspan.textContent = text;
+    return tspan;
+}
+
 /**
  * Renders a double elimination bracket.
  * @param {SVGElement} svg The SVG container.
@@ -508,7 +574,7 @@ function createText(x, y, text) {
  */
 function renderDoubleElimBracket(svg, data, matchesByNum) {
     const BOX_WIDTH = 180;
-    const BOX_HEIGHT = 60;
+    const BOX_HEIGHT = 75; // Increased height to accommodate 3 lines of text
     const H_SPACING = 80;
     const V_SPACING = 30;
 
@@ -642,60 +708,162 @@ function renderDoubleElimBracket(svg, data, matchesByNum) {
     svg.setAttribute("height", Math.max(...Object.values(positions).map(p => p.y + p.height)) + 50);
 }
 
-
-function formatName(name, result) {
-    if (!name) return "TBD";
-    if (!result) return name;
-    return `${name} (${result})`;
+function getHouseColor(houseCode) {
+    return HOUSE_COLORS[houseCode] || HOUSE_COLORS['N/A'];
 }
 
+function getParticipantNameOnly(participant_obj) {
+    if (!participant_obj) return "TBD";
+    // Handle cases where participant might be a string (e.g., "Winner of M...")
+    if (typeof participant_obj === 'string') {
+        if (participant_obj.startsWith("Winner of M")) return "TBD";
+        return participant_obj;
+    }
+    // If it's an object, return the name
+    return participant_obj.name;
+}
+
+function getParticipantTimeOnly(result) {
+    if (!result) return "";
+    const timeParts = result.split(":");
+    // Ensure timeParts has enough elements before accessing
+    if (timeParts.length < 3) {
+        return result; // Return original if format is unexpected
+    }
+    return `${timeParts[1]}:${timeParts[2].split('.')[0]}`;
+}
+
+function formatProblemName(filename) {
+    if (!filename) return '';
+    // Converts 'some-problem.md' to 'Some Problem'
+    return filename
+        .replace('.md', '')
+        .replace(/-/g, ' ')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, char => char.toUpperCase());
+}
 
 /* -----------------------------------------
-   MATCH PAGE LOGIC (unchanged)
+   MATCH MODAL LOGIC
 ------------------------------------------*/
 
-async function loadMatch(matchId) {
+async function openMatchModal(matchId) {
     const res = await fetch(`/api/match/${matchId}`);
     const match = await res.json();
 
-    const container = document.getElementById("matchContainer");
-    container.innerHTML = `
-        <h1>${match.participant1} vs ${match.participant2}</h1>
-        <button onclick="startMatch(${matchId})">START PROBLEM</button>
-        <button onclick="location.href='/'">BACK TO BRACKET</button>
-        <div id="problemArea"></div>
-        <br><br>
-        <button onclick="complete(${matchId},1)">
-            ✅ ${match.participant1} Completed
-        </button>
-        <button onclick="complete(${matchId},2)">
-            ✅ ${match.participant2} Completed
-        </button>
+    if (!match.participant1 || !match.participant2 || (typeof match.participant1 === 'string' && match.participant1.startsWith("Winner of"))) {
+        alert("This match is not ready to start yet.");
+        return;
+    }
+
+    const modal = document.getElementById("matchModal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalBody = document.getElementById("modalBody");
+    const problemArea = document.getElementById("problemArea");
+
+    const p1_name_modal = typeof match.participant1 === 'object' ? match.participant1.name : match.participant1;
+    const p2_name_modal = typeof match.participant2 === 'object' ? match.participant2.name : match.participant2;
+    const p1_house_modal = typeof match.participant1 === 'object' ? match.participant1.house : 'N/A';
+    const p2_house_modal = typeof match.participant2 === 'object' ? match.participant2.house : 'N/A';
+
+    modalTitle.innerHTML = `<span style="color:${getHouseColor(p1_house_modal)}">${p1_name_modal}</span> vs <span style="color:${getHouseColor(p2_house_modal)}">${p2_name_modal}</span>`;
+    problemArea.innerHTML = ""; // Clear old problem
+
+    modalBody.innerHTML = `
+        <div id="countdownDisplay"></div>
+        <button id="startBtn" onclick="startMatchAnimation(${matchId})">Start Match</button>
+        <span id="startTimeDisplay" style="margin-left: 1rem; font-weight: bold;"></span>
+        <hr>
+        <div style="display: flex; justify-content: space-around;">
+            <div class="participant-column">
+                <h2>${match.participant1}</h2>
+                <button id="p1CompleteBtn" onclick="completeMatch(${matchId}, 1)" ${match.participant1_result ? 'disabled' : ''}>Completed</button>
+                <div id="p1Time" class="time-display">${match.participant1_result ? getParticipantTimeOnly(match.participant1_result) : ''}</div>
+            </div>
+            <div class="participant-column">
+                <h2>${match.participant2}</h2>
+                <button id="p2CompleteBtn" onclick="completeMatch(${matchId}, 2)" ${match.participant2_result ? 'disabled' : ''}>Completed</button>
+                <div id="p2Time" class="time-display">${match.participant2_result ? getParticipantTimeOnly(match.participant2_result) : ''}</div>
+            </div>
+        </div>
+        <br>
+        <button onclick="closeModal()">Close & Refresh Bracket</button>
     `;
+
+    modal.style.display = "flex";
 }
 
-async function startMatch(matchId) {
+function closeModal() {
+    document.getElementById("matchModal").style.display = "none";
+    location.reload();
+}
+
+async function startMatchAnimation(matchId) {
+    const countdownDisplay = document.getElementById("countdownDisplay");
+    const modalControls = document.getElementById("modalBody"); // The div containing buttons, etc.
+    modalControls.style.display = "none"; // Hide controls during countdown
+
+    const countdown = (num) => {
+        if (num > 0) {
+            countdownDisplay.innerHTML = `<div class="countdown">${num}</div>`;
+            setTimeout(() => countdown(num - 1), 1000);
+        } else {
+            countdownDisplay.innerHTML = `<div class="countdown">GO!</div>`;
+            setTimeout(async () => {
+                countdownDisplay.innerHTML = ''; // Clear countdown
+                modalControls.style.display = "block"; // Show controls again
+                await startMatch(matchId);
+            }, 1000);
+        }
+    };
+
+    countdown(3);
+}
+
+async function startMatch(matchId) { // Renamed from startMatchAnimation
     await fetch(`/api/start/${matchId}`, { method: "POST" });
     const matchRes = await fetch(`/api/match/${matchId}`);
     const match = await matchRes.json();
+
+    // Display start time
+    const startTime = new Date(match.start_time).toLocaleTimeString();
+    document.getElementById("startTimeDisplay").textContent = `Started at: ${startTime}`;
+    document.getElementById("startBtn").disabled = true;
+
+    // Load problem
     const problem = await fetch(`/api/problem/${match.problem}`);
     document.getElementById("problemArea").innerHTML = await problem.text();
 }
 
-async function complete(matchId, participant) {
-    await fetch(`/api/complete/${matchId}`, {
+async function completeMatch(matchId, participant) {
+    const res = await fetch(`/api/complete/${matchId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ participant })
     });
 
-    alert("Time Recorded!");
-    location.href = "/";
+    if (!res.ok) {
+        const err = await res.json();
+        alert(`Error: ${err.error}`);
+        return;
+    }
+
+    // Re-fetch match data to get the new times
+    const matchRes = await fetch(`/api/match/${matchId}`);
+    const match = await matchRes.json();
+
+    // Update UI with times
+    document.getElementById(`p${participant}Time`).textContent = getParticipantTimeOnly(match[`participant${participant}_result`]);
+    document.getElementById(`p${participant}CompleteBtn`).disabled = true;
+
+    // If both are done, close the modal and refresh
+    if (match.participant1_result && match.participant2_result) {
+        alert("Both participants have finished! Returning to bracket.");
+        closeModal();
+    }
 }
 
 
 if (window.location.pathname === "/") {
     loadBracket();
-} else if (window.location.pathname.startsWith("/match/")) {
-    loadMatch(matchId);
 }

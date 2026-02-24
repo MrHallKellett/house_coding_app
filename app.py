@@ -31,6 +31,30 @@ def load_bracket():
     except Exception:
         return None
 
+PROBLEMS_DIR = "problems" # Already defined, but ensure it's accessible
+
+def get_problems_by_round():
+    problems_by_round = {}
+    all_problems = []
+    if not os.path.exists(PROBLEMS_DIR):
+        os.makedirs(PROBLEMS_DIR) # Ensure directory exists
+    for f in os.listdir(PROBLEMS_DIR):
+        if f.endswith(".md"):
+            all_problems.append(f)
+            try:
+                # Assuming problem names like "1-problem-name.md"
+                round_num_str = f.split('-')[0]
+                if round_num_str.isdigit():
+                    round_num = int(round_num_str)
+                    problems_by_round.setdefault(round_num, []).append(f)
+                else:
+                    # Problems without a numeric round prefix, put them in a general pool (round 0)
+                    problems_by_round.setdefault(0, []).append(f)
+            except (ValueError, IndexError):
+                problems_by_round.setdefault(0, []).append(f)
+    return problems_by_round, all_problems
+
+PROBLEMS_BY_ROUND, ALL_PROBLEMS = get_problems_by_round()
 
 def save_bracket(bracket):
     with open(BRACKET_FILE, "w") as f:
@@ -38,17 +62,28 @@ def save_bracket(bracket):
 
 
 
+def assign_problem_for_round(round_num):
+    if round_num in PROBLEMS_BY_ROUND and PROBLEMS_BY_ROUND[round_num]:
+        return random.choice(PROBLEMS_BY_ROUND[round_num])
+    # Fallback: if no specific problems for this round, use any available problem
+    if ALL_PROBLEMS:
+        return random.choice(ALL_PROBLEMS)
+    return "default-problem.md" # Fallback if no problems at all
 
-def generate_single_elim(participants):
+def generate_single_elim(participants_list_of_dicts):
 
-    random.shuffle(participants)
+    n = len(participants_list_of_dicts)
 
-    problems = [f for f in os.listdir(PROBLEMS_DIR) if f.endswith(".md")]
-
-    n = len(participants)
+    
 
     if (n & (n - 1)) != 0:
         raise ValueError("Participants must be a power of 2")
+    
+    random.shuffle(participants_list_of_dicts)
+
+    total_rounds = 0
+    temp_n = n
+    while temp_n > 1: temp_n //= 2; total_rounds += 1
 
     total_matches = n - 1
     matches = []
@@ -59,37 +94,42 @@ def generate_single_elim(participants):
             "match_num": match_num,
             "winner_proceeds_to": None,
             "loser_proceeds_to": None,
-            "problem": random.choice(problems),
+            "problem": None, # Will assign later
             "participant1": None,
             "participant2": None,
             "participant1_result": None,
             "participant2_result": None,
             "start_time": None
         })
-
-    # --- Fill first round ---
-    first_round_matches = n // 2
-
-    for i in range(first_round_matches):
-        matches[i]["participant1"] = participants[i*2]
-        matches[i]["participant2"] = participants[i*2 + 1]
+    
+    # --- Fill first round and assign problems ---
+    first_round_matches_count = n // 2
+    for i in range(first_round_matches_count):
+        match_idx = i
+        matches[match_idx]["participant1"] = participants_list_of_dicts[i*2]
+        matches[match_idx]["participant2"] = participants_list_of_dicts[i*2 + 1]
+        matches[match_idx]["problem"] = assign_problem_for_round(1) # Round 1
 
     # --- Wire winners correctly ---
-    current_round_start = 0
-    current_round_size = first_round_matches
-    next_match_index = first_round_matches
+    current_round_start_idx = 0
+    current_round_size = first_round_matches_count
+    next_match_start_idx = first_round_matches_count
+    current_round_num = 1
 
     while current_round_size > 1:
-
+        current_round_num += 1
         for i in range(0, current_round_size, 2):
-            parent_index = next_match_index + (i // 2)
+            parent_match_idx = next_match_start_idx + (i // 2)
 
-            matches[current_round_start + i]["winner_proceeds_to"] = parent_index + 1
-            matches[current_round_start + i + 1]["winner_proceeds_to"] = parent_index + 1
+            matches[current_round_start_idx + i]["winner_proceeds_to"] = matches[parent_match_idx]["match_num"]
+            matches[current_round_start_idx + i + 1]["winner_proceeds_to"] = matches[parent_match_idx]["match_num"]
+            
+            # Assign problem for the parent match (which is in the next round)
+            matches[parent_match_idx]["problem"] = assign_problem_for_round(current_round_num)
 
-        current_round_start = next_match_index
+        current_round_start_idx = next_match_start_idx
         current_round_size //= 2
-        next_match_index += current_round_size
+        next_match_start_idx += current_round_size
 
     # --- Add 3rd place playoff ---    
     if n >= 4:
@@ -102,8 +142,8 @@ def generate_single_elim(participants):
         matches.append({
             "match_num": third_place_match_num,
             "winner_proceeds_to": None,
-            "loser_proceeds_to": None,
-            "problem": random.choice(problems),
+            "loser_proceeds_to": None, # This will be wired later
+            "problem": assign_problem_for_round(total_rounds), # 3rd place is usually last round
             "participant1": None,
             "participant2": None,
             "participant1_result": None,
@@ -116,20 +156,72 @@ def generate_single_elim(participants):
         for match_index in semi_final_matches_indices:
             matches[match_index]["loser_proceeds_to"] = third_place_match_num
     return matches
+    
+def _generate_ub_matches(participants_list_of_dicts):
+    random.shuffle(participants_list_of_dicts)
+    n = len(participants_list_of_dicts)
+    
+    total_ub_matches = n - 1
+    ub_matches = []
 
-def generate_double_elim(participants):
+    total_rounds = 0
+    temp_n = n
+    while temp_n > 1:
+        temp_n //= 2
+        total_rounds += 1
+
+    for match_num in range(1, total_ub_matches + 1):
+        ub_matches.append({
+            "match_num": match_num,
+            "winner_proceeds_to": None,
+            "loser_proceeds_to": None,
+            "problem": None,
+            "participant1": None,
+            "participant2": None,
+            "participant1_result": None,
+            "participant2_result": None,
+            "start_time": None
+        })
+
+    first_round_matches_count = n // 2
+    for i in range(first_round_matches_count):
+        match_idx = i
+        ub_matches[match_idx]["participant1"] = participants_list_of_dicts[i*2]
+        ub_matches[match_idx]["participant2"] = participants_list_of_dicts[i*2 + 1]
+        ub_matches[match_idx]["problem"] = assign_problem_for_round(1)
+
+    current_round_start_idx = 0
+    current_round_size = first_round_matches_count
+    next_match_start_idx = first_round_matches_count
+    current_round_num = 1
+
+    while current_round_size > 1:
+        current_round_num += 1
+        for i in range(0, current_round_size, 2):
+            parent_match_idx = next_match_start_idx + (i // 2)
+
+            ub_matches[current_round_start_idx + i]["winner_proceeds_to"] = ub_matches[parent_match_idx]["match_num"]
+            ub_matches[current_round_start_idx + i + 1]["winner_proceeds_to"] = ub_matches[parent_match_idx]["match_num"]
+            ub_matches[parent_match_idx]["problem"] = assign_problem_for_round(current_round_num)
+
+        current_round_start_idx = next_match_start_idx
+        current_round_size //= 2
+        next_match_start_idx += current_round_size
+    
+    return ub_matches
+
+def generate_double_elim(participants_list_of_dicts):
     """
     Generates a double-elimination bracket for a power-of-two number of participants.
     """
-    random.shuffle(participants)
-    problems = [f for f in os.listdir(PROBLEMS_DIR) if f.endswith(".md")]
-    n = len(participants)
+    random.shuffle(participants_list_of_dicts)
+    n = len(participants_list_of_dicts)
 
     if (n & (n - 1)) != 0 or n < 4:
         raise ValueError("Double elimination requires a power of 2 with at least 4 participants.")
 
     # --- 1. Generate Upper Bracket ---
-    upper_matches = generate_single_elim(participants)
+    upper_matches = _generate_ub_matches(participants_list_of_dicts)
     upper_matches = [m for m in upper_matches if not m.get("is_third_place")]
     for match in upper_matches:
         match['bracket'] = 'upper'
@@ -146,7 +238,7 @@ def generate_double_elim(participants):
             "match_num": match_num_counter,
             "winner_proceeds_to": None,
             "loser_proceeds_to": None,
-            "problem": random.choice(problems),
+            "problem": assign_problem_for_round(1), # Simplified for LB, can be refined
             "participant1": None,
             "participant2": None,
             "participant1_result": None,
@@ -210,7 +302,7 @@ def generate_double_elim(participants):
         "match_num": grand_final_num,
         "winner_proceeds_to": None,
         "loser_proceeds_to": None,
-        "problem": random.choice(problems),
+        "problem": assign_problem_for_round(len(upper_matches_by_round) + max(lowerRounds.keys() or [0]) + 1), # Heuristic for final round
         "participant1": None, # Winner of Upper Bracket
         "participant2": None, # Winner of Lower Bracket
         "participant1_result": None,
@@ -229,23 +321,23 @@ def generate_double_elim(participants):
 
     return matches
 
-def generate_hybrid_elim(participants):
+def generate_hybrid_elim(participants_list_of_dicts):
     """
     Generates a bracket for 12 or 24 participants.
     Runs 1v1 rounds until 3 participants remain, then creates a 3-way
     round-robin final.
     """
-    random.shuffle(participants)
-    problems = [f for f in os.listdir(PROBLEMS_DIR) if f.endswith(".md")]
-    n = len(participants)
+    random.shuffle(participants_list_of_dicts)
+    n = len(participants_list_of_dicts)
 
     if n not in [12, 24]:
         raise ValueError("Hybrid elimination only supports 12 or 24 participants.")
 
     matches = []
     match_num_counter = 1
-    current_participants = list(participants)
+    current_participants = list(participants_list_of_dicts)
     last_round_match_indices = []
+    current_round_num = 0
 
     while len(current_participants) > 3:
         num_matches_in_round = len(current_participants) // 2
@@ -257,7 +349,8 @@ def generate_hybrid_elim(participants):
                 "match_num": match_num_counter,
                 "winner_proceeds_to": None, # Will be wired up later
                 "loser_proceeds_to": None,
-                "problem": random.choice(problems),
+                "problem": assign_problem_for_round(current_round_num + 1), # Assign problem for this round
+                # Store full participant objects
                 "participant1": current_participants[i*2],
                 "participant2": current_participants[i*2 + 1],
                 "participant1_result": None,
@@ -274,17 +367,18 @@ def generate_hybrid_elim(participants):
                 child_match_num = matches[current_round_match_indices[i // 2]]["match_num"]
                 matches[parent_match_idx]["winner_proceeds_to"] = child_match_num
 
+        current_round_num += 1
         last_round_match_indices = list(current_round_match_indices)
         # Placeholder for winners
-        current_participants = [f"Winner of M{i+1}" for i in range(num_matches_in_round)]
+        current_participants = [f"Winner of M{matches[idx]['match_num']}" for idx in current_round_match_indices]
 
     # --- Create 3-way Round-Robin Final ---
     finalists_placeholders = current_participants
     sub_matches = []
     for i in range(3):
         sub_match = {
-            "match_num": match_num_counter,
-            "problem": random.choice(problems),
+            "match_num": match_num_counter, # These are the sub-matches of the final
+            "problem": assign_problem_for_round(current_round_num + 1), # Assign problem for final round
             "participant1": None,
             "participant2": None,
             "participant1_result": None,
@@ -298,7 +392,7 @@ def generate_hybrid_elim(participants):
     final_match = {
         "match_num": match_num_counter,
         "match_type": "three_way_round_robin",
-        "sub_matches": [m["match_num"] for m in sub_matches],
+        "sub_matches": [m["match_num"] for m in sub_matches], # Store match_nums, not objects
         "winner": None # Overall winner
     }
     matches.append(final_match)
@@ -328,19 +422,22 @@ def create_bracket():
     data = request.json
     elim_type = data["type"]
 
-    if not os.path.exists("participants.txt"):
-        return jsonify({"error": "participants.txt missing"}), 400
+    if not os.path.exists("participants.txt"): return jsonify({"error": "participants.txt missing"}), 400
 
-    with open("participants.txt") as f:
-        participants = [p.strip() for p in f if p.strip()]
+    with open("participants.txt") as f: participants_raw = [p.strip() for p in f if p.strip()]
+    
+    participants_list_of_dicts = []
+    for p_line in participants_raw:
+        parts = p_line.split(maxsplit=1) # Split only on first space
+        participants_list_of_dicts.append({"name": parts[0], "house": parts[1].upper() if len(parts) > 1 else "N/A"})
 
-    n = len(participants)
+    n = len(participants_list_of_dicts)
     if elim_type == "double":
-        bracket = generate_double_elim(participants)
+        bracket = generate_double_elim(participants_list_of_dicts)
     elif elim_type == "single" and (n & (n - 1)) == 0 and n != 0: # Power of 2
-        bracket = generate_single_elim(participants)    
+        bracket = generate_single_elim(participants_list_of_dicts)    
     elif n in [12, 24]:
-        bracket = generate_hybrid_elim(participants)
+        bracket = generate_hybrid_elim(participants_list_of_dicts)
     else:
         return jsonify({"error": f"Unsupported number of participants: {n}. Please use a power of 2, 12, or 24."}), 400
 
@@ -397,10 +494,18 @@ def complete_match(match_id):
 
     elapsed = str(end_time - start_time)
 
-    if participant == 1:
+    # Store results for the participant's name (string)
+    if str(participant) == "1":
         match["participant1_result"] = elapsed
     else:
         match["participant2_result"] = elapsed
+    
+    # Get the full participant objects for advancing
+    winner_participant_obj = None
+    loser_participant_obj = None
+    t1 = parse_time(match["participant1_result"]) if match["participant1_result"] else float('inf')
+    t2 = parse_time(match["participant2_result"]) if match["participant2_result"] else float('inf')
+
 
     # Decide winner automatically if both finished
     if match["participant1_result"] and match["participant2_result"]:
@@ -408,10 +513,15 @@ def complete_match(match_id):
         t1 = parse_time(match["participant1_result"])
         t2 = parse_time(match["participant2_result"])
 
-        winner_name = (
+        winner_participant_obj = (
             match["participant1"]
             if t1 < t2
             else match["participant2"]
+        )
+        loser_participant_obj = (
+            match["participant2"]
+            if t1 < t2
+            else match["participant1"]
         )
 
         # --- Advance winner (Standard Match) ---
@@ -451,10 +561,10 @@ def complete_match(match_id):
 
             # If next match is a standard match
             else:
-                if not next_match["participant1"]:
-                    next_match["participant1"] = winner_name
+                if not next_match["participant1"]: # Assign the full participant object
+                    next_match["participant1"] = winner_participant_obj
                 else:
-                    next_match["participant2"] = winner_name
+                    next_match["participant2"] = winner_participant_obj
         
         # --- Check for 3-way final completion ---
         parent_3_way_match = next((m for m in bracket if m.get("match_type") == "three_way_round_robin" and match_id in m.get("sub_matches", [])), None)
@@ -470,26 +580,22 @@ def complete_match(match_id):
                     wins[sub_winner] = wins.get(sub_winner, 0) + 1
                 
                 # The winner is the one with 2 wins
-                overall_winner = max(wins, key=wins.get)
-                parent_3_way_match["winner"] = overall_winner
-        
-        loser_name = (
-            match["participant2"]
-            if winner_name == match["participant1"]
-            else match["participant1"]
-        )
+                # This assumes winner_participant_obj is a dict, so we need to store the name
+                overall_winner_name = max(wins, key=wins.get)
+                parent_3_way_match["winner"] = overall_winner_name
 
         # Advance loser to 3rd place if exists
         if match.get("loser_proceeds_to"):
             third_match = next(
                 m for m in bracket
                 if m["match_num"] == match["loser_proceeds_to"]
-            )
+            ) # Assign the full participant object
 
-            if not third_match["participant1"]:
-                third_match["participant1"] = loser_name
+            if not third_match["participant1"]: 
+                third_match["participant1"] = loser_participant_obj
             else:
-                third_match["participant2"] = loser_name
+                third_match["participant2"] = loser_participant_obj
+
 
     save_bracket(bracket)
     return jsonify({"success": True})
