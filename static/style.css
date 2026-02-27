@@ -1,8 +1,22 @@
 
 body {
     font-family: Arial, sans-serif;
-    background: #f4f6f9;
+    background: #f8fafc;
     text-align: center;
+    margin: 0;
+}
+
+.page-header {
+    position: sticky;
+    top: 0;
+    background: #f8fafc;
+    padding: 1rem 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.page-header h1 {
+    margin: 0;
 }
 
 .match {
@@ -22,13 +36,184 @@ body {
     transform: scale(1.05);
 }
 
+#bracket-container {
+    position: relative;
+    margin: 2rem;
+}
+
+#bracket-header {
+    position: sticky;
+    top: 90px; /* Adjust based on page-header height */
+    height: 40px;
+    background: #f8fafc;
+    z-index: 99;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
 #bracket {
-    margin-top: 40px;
     overflow-x: auto;
+}
+
+.round-label {
+    position: absolute;
+    font-size: 16px;
+    font-weight: bold;
+    text-anchor: middle;
 }
 
 svg {
     background: linear-gradient(to right, #f8fafc, #eef2ff);
     border-radius: 12px;
     padding: 20px;
+}
+
+/* Modal Participant Buttons & Layout */
+.participant-btn {
+    color: white;
+    font-weight: bold;
+    font-size: 3.5rem;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    text-transform: capitalize;
+}
+
+.participant-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.match-controls {
+    margin-bottom: 1.5rem;
+}
+
+.participant-actions {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.vs-separator {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #6b7280;
+    margin: 0 1rem;
+}
+
+/* This was in the <style> tag in index.html, but is better here */
+.participant-column .time-display {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #4b5563;
+    height: 1.2rem; /* Reserve space */
+}
+
+.return-btn, .start-btn {
+    
+    color: white;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.return-btn
+{
+    background-color: #16a34a; /* A nice green */
+}
+
+.start-btn {
+    background-color: #3b82f6; /* A nice blue */
+}
+
+.reset-btn {
+    background-color: #ef4444; /* A nice red */
+    color: white;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button {
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Toast Notifications */
+#toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    padding: 15px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transform: translateX(100%);
+    animation: slideIn 0.5s forwards, fadeOut 0.5s 4.5s forwards;
+}
+
+.toast.error { background-color: #ef4444; }
+.toast.info { background-color: #3b82f6; }
+.toast.success { background-color: #22c55e; }
+
+@keyframes slideIn {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+/* Confirmation Modal */
+.confirm-modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.confirm-modal-content p {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+.confirm-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.confirm-btn-yes { background-color: #ef4444; color: white; }
+.confirm-btn-no { background-color: #e5e7eb; color: #1f2937; }
+
+/* Ensure no extra margin when problem body is revealed */
+#problem-body > *:first-child {
+    margin-top: 0;
 }

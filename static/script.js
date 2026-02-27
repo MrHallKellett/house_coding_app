@@ -20,7 +20,7 @@ async function createBracket(type) {
     const data = await res.json();
 
     if (data.error) {
-        alert(data.error);
+        showToast(data.error, 'error');
         return;
     }
 
@@ -34,6 +34,7 @@ async function createBracket(type) {
 function renderBracketSVG(data) { // Renamed 'matches' to 'data' for clarity
 
     const container = document.getElementById("bracket");
+    const headerContainer = document.getElementById("bracket-header");
     container.innerHTML = "";
 
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -114,17 +115,13 @@ function renderBracketSVG(data) { // Renamed 'matches' to 'data' for clarity
 
     roundNumbers.forEach(r => {
         const x = 50 + (r - 1) * HORIZONTAL_SPACING;
-        const y = 25; // Position labels at the top
         const roundName = getRoundName(r, roundNumbers.length);
 
-        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        text.setAttribute("x", x + BOX_WIDTH / 2);
-        text.setAttribute("y", y);
-        text.setAttribute("text-anchor", "middle");
-        text.setAttribute("font-size", "16");
-        text.setAttribute("font-weight", "bold");
-        text.textContent = roundName;
-        svg.appendChild(text);
+        const label = document.createElement("div");
+        label.className = "round-label";
+        label.style.left = `${x + BOX_WIDTH / 2}px`;
+        label.textContent = roundName;
+        headerContainer.appendChild(label);
     });
     // -----------------------------
     // FIRST ROUND
@@ -311,6 +308,10 @@ function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
     const p2_name_display = getParticipantNameOnly(match.participant2);
     const p1_time_display = getParticipantTimeOnly(match.participant1_result);
     const p2_time_display = getParticipantTimeOnly(match.participant2_result);
+    const p1_house = getParticipantHouse(match.participant1);
+    const p2_house = getParticipantHouse(match.participant2);
+    const p1_color = getHouseColor(p1_house);
+    const p2_color = getHouseColor(p2_house);
     const problem_text = formatProblemName(match.problem);
 
     // --- Grid-based text layout ---
@@ -323,7 +324,7 @@ function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
     const row3_y = y + 62; // Baseline for third row
 
     // Helper to create and append text elements
-    const addText = (content, x_pos, y_pos, size, weight, fill, anchor = "middle") => {
+    const addText = (content, x_pos, y_pos, size, weight, fill, anchor = "middle", parent = group) => {
         const el = document.createElementNS("http://www.w3.org/2000/svg", "text");
         el.setAttribute("x", x_pos);
         el.setAttribute("y", y_pos);
@@ -332,13 +333,36 @@ function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
         el.setAttribute("fill", fill);
         el.setAttribute("text-anchor", anchor);
         el.textContent = content;
-        group.appendChild(el);
+        parent.appendChild(el);
+        return el;
+    };
+
+    // Helper to draw the name backgrounds
+    const addNameBg = (x_pos, y_pos, color) => {
+        const bg_width = width * 0.45; // 45% of the box width
+        const bg_height = 22;
+        const bg_rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        bg_rect.setAttribute("x", x_pos - bg_width / 2);
+        bg_rect.setAttribute("y", y_pos - bg_height / 2 - 4); // Adjust vertical position
+        bg_rect.setAttribute("width", bg_width);
+        bg_rect.setAttribute("height", bg_height);
+        bg_rect.setAttribute("rx", 4);
+        bg_rect.setAttribute("fill", color);
+        group.appendChild(bg_rect);
     };
 
     // Row 1: Names
-    addText(p1_name_display, col1_x, row1_y, "14", "bold", "#111");
+    if (p1_house !== 'N/A') {
+        addNameBg(col1_x, row1_y, p1_color);
+    }
+    addText(p1_name_display, col1_x, row1_y, "14", "bold", p1_house !== 'N/A' ? "white" : "#111");
+
     addText("v", col2_x, row1_y, "12", "normal", "#6b7280");
-    addText(p2_name_display, col3_x, row1_y, "14", "bold", "#111");
+
+    if (p2_house !== 'N/A') {
+        addNameBg(col3_x, row1_y, p2_color);
+    }
+    addText(p2_name_display, col3_x, row1_y, "14", "bold", p2_house !== 'N/A' ? "white" : "#111");
 
     // Row 2: Times
     if (p1_time_display) {
@@ -350,16 +374,6 @@ function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
 
     // Row 3: Problem Name
     addText(problem_text, col2_x, row3_y, "12", "normal", "#6b7280");
-
-    group.appendChild(rect);
-
-    // The text elements need to be on top of the rect for the click event to work on them.
-    // Since we added them to the group, we need to re-append the rect to put it "behind" them.
-    // A cleaner way is to add the rect first, then all text elements.
-    const textElements = group.querySelectorAll('text');
-    group.innerHTML = ''; // Clear group
-    group.appendChild(rect); // Add rect first
-    textElements.forEach(el => group.appendChild(el)); // Add text elements on top
 
     svg.appendChild(group);
 }
@@ -712,6 +726,14 @@ function getHouseColor(houseCode) {
     return HOUSE_COLORS[houseCode] || HOUSE_COLORS['N/A'];
 }
 
+function getParticipantHouse(participant_obj) {
+    if (!participant_obj || typeof participant_obj === 'string') {
+        return 'N/A';
+    }
+    // If it's an object, return the house
+    return participant_obj.house;
+}
+
 function getParticipantNameOnly(participant_obj) {
     if (!participant_obj) return "TBD";
     // Handle cases where participant might be a string (e.g., "Winner of M...")
@@ -725,12 +747,12 @@ function getParticipantNameOnly(participant_obj) {
 
 function getParticipantTimeOnly(result) {
     if (!result) return "";
-    const timeParts = result.split(":");
-    // Ensure timeParts has enough elements before accessing
-    if (timeParts.length < 3) {
-        return result; // Return original if format is unexpected
-    }
-    return `${timeParts[1]}:${timeParts[2].split('.')[0]}`;
+    // Format as H:MM:SS
+    const parts = result.split(':');
+    const h = parts[0];
+    const m = parts[1];
+    const s = parts[2].split('.')[0].padStart(2, '0');
+    return `${h}:${m}:${s}`;
 }
 
 function formatProblemName(filename) {
@@ -747,58 +769,126 @@ function formatProblemName(filename) {
    MATCH MODAL LOGIC
 ------------------------------------------*/
 
+let matchTimerInterval = null; // Holds the setInterval for the live timer
+
 async function openMatchModal(matchId) {
     const res = await fetch(`/api/match/${matchId}`);
     const match = await res.json();
 
     if (!match.participant1 || !match.participant2 || (typeof match.participant1 === 'string' && match.participant1.startsWith("Winner of"))) {
-        alert("This match is not ready to start yet.");
+        showToast("This match is not ready yet.", 'info');
         return;
     }
+
+    // Clear any previous timer when opening a new modal
+    if (matchTimerInterval) clearInterval(matchTimerInterval);
 
     const modal = document.getElementById("matchModal");
     const modalTitle = document.getElementById("modalTitle");
     const modalBody = document.getElementById("modalBody");
-    const problemArea = document.getElementById("problemArea");
 
     const p1_name_modal = typeof match.participant1 === 'object' ? match.participant1.name : match.participant1;
-    const p2_name_modal = typeof match.participant2 === 'object' ? match.participant2.name : match.participant2;
+    const p2_name_modal = typeof match.participant2 === 'object' ? match.participant2.name : match.participant2;    
     const p1_house_modal = typeof match.participant1 === 'object' ? match.participant1.house : 'N/A';
     const p2_house_modal = typeof match.participant2 === 'object' ? match.participant2.house : 'N/A';
 
-    modalTitle.innerHTML = `<span style="color:${getHouseColor(p1_house_modal)}">${p1_name_modal}</span> vs <span style="color:${getHouseColor(p2_house_modal)}">${p2_name_modal}</span>`;
-    problemArea.innerHTML = ""; // Clear old problem
-
-    modalBody.innerHTML = `
-        <div id="countdownDisplay"></div>
-        <button id="startBtn" onclick="startMatchAnimation(${matchId})">Start Match</button>
-        <span id="startTimeDisplay" style="margin-left: 1rem; font-weight: bold;"></span>
-        <hr>
-        <div style="display: flex; justify-content: space-around;">
+    modalTitle.innerHTML = `
+        <div class="participant-actions" style="justify-content: center; align-items: center;">
             <div class="participant-column">
-                <h2>${match.participant1}</h2>
-                <button id="p1CompleteBtn" onclick="completeMatch(${matchId}, 1)" ${match.participant1_result ? 'disabled' : ''}>Completed</button>
+                <button id="p1CompleteBtn" class="participant-btn" style="background-color:${getHouseColor(p1_house_modal)};" onclick="completeMatch(${matchId}, 1)" disabled>${p1_name_modal}</button>
                 <div id="p1Time" class="time-display">${match.participant1_result ? getParticipantTimeOnly(match.participant1_result) : ''}</div>
             </div>
+            <span class="vs-separator">vs</span>
             <div class="participant-column">
-                <h2>${match.participant2}</h2>
-                <button id="p2CompleteBtn" onclick="completeMatch(${matchId}, 2)" ${match.participant2_result ? 'disabled' : ''}>Completed</button>
+                <button id="p2CompleteBtn" class="participant-btn" style="background-color:${getHouseColor(p2_house_modal)};" onclick="completeMatch(${matchId}, 2)" disabled>${p2_name_modal}</button>
                 <div id="p2Time" class="time-display">${match.participant2_result ? getParticipantTimeOnly(match.participant2_result) : ''}</div>
             </div>
         </div>
+    `;
+
+    modalBody.innerHTML = `
+        <div class="match-controls">
+            <button id="startBtn" class="start-btn" onclick="startMatchAnimation(${matchId})" ${match.start_time ? 'disabled' : ''}>Start</button>
+            <span id="startTimeDisplay" style="margin-left: 1rem; font-weight: bold;">${match.start_time ? `Started at: ${new Date(match.start_time).toLocaleTimeString()}` : ''}</span>
+            <button id="returnBtn" class="return-btn" onclick="closeModal()" style="display: none;">Return to Bracket & Refresh</button>
+        </div>
         <br>
-        <button onclick="closeModal()">Close & Refresh Bracket</button>
+        <hr>
+        <div id="problemArea"></div>
+        <div style="text-align: right; margin-top: 2rem;">
+            <button class="reset-btn" onclick="resetMatch(${matchId})">Reset Match</button>
+        </div>
     `;
 
     modal.style.display = "flex";
+
+    // Get the problemArea element AFTER it has been added to the DOM
+    const problemArea = document.getElementById("problemArea");
+
+    // Load problem immediately when modal opens
+    if (match.problem) {
+        const problemHtml = await (await fetch(`/api/problem/${match.problem}`)).text();
+        
+        // If the match has not started, show only the title.
+        // Otherwise, show the full problem.
+        if (!match.start_time) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = problemHtml;
+            const titleElement = tempDiv.querySelector('h1');
+            const titleHtml = titleElement ? titleElement.outerHTML : '<h1>Problem</h1>';
+            
+            // Store the rest of the content in a hidden div
+            if (titleElement) titleElement.remove();
+            const restOfContent = tempDiv.innerHTML;
+
+            problemArea.innerHTML = `${titleHtml}<div id="problem-body" style="display: none;">${restOfContent}</div>`;
+        } else {
+            problemArea.innerHTML = problemHtml;
+        }
+
+    } else {
+        problemArea.innerHTML = ""; // Clear old problem
+    }
+
+    // If match has already started, enable the completion buttons
+    if (match.start_time) {
+        document.getElementById('p1CompleteBtn').disabled = !!match.participant1_result;
+        document.getElementById('p2CompleteBtn').disabled = !!match.participant2_result;
+
+        // If match is in progress but not finished, start the timer
+        if (!match.participant1_result || !match.participant2_result) {
+            const startTime = new Date(match.start_time).getTime();
+            const timerDisplay = document.getElementById("startTimeDisplay");
+
+            matchTimerInterval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const seconds = Math.floor((elapsed / 1000) % 60).toString().padStart(2, '0');
+                const minutes = Math.floor((elapsed / (1000 * 60)) % 60).toString().padStart(2, '0');
+                const hours = Math.floor(elapsed / (1000 * 60 * 60));
+                timerDisplay.textContent = `Time Elapsed: ${hours}:${minutes}:${seconds}`;
+            }, 1000);
+        } else {
+            document.getElementById("startTimeDisplay").textContent = "Match Complete";
+        }
+
+        // If match is fully complete, show the return button
+        if (match.participant1_result && match.participant2_result) {
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('startTimeDisplay').style.display = 'none';
+            document.getElementById('returnBtn').style.display = 'inline-block';
+        }
+    }
 }
 
 function closeModal() {
     document.getElementById("matchModal").style.display = "none";
+    if (matchTimerInterval) clearInterval(matchTimerInterval);
     location.reload();
 }
 
 async function startMatchAnimation(matchId) {
+    const startBtn = document.getElementById("startBtn");
+    startBtn.style.display = 'none'; // Correctly hide the start button
     const countdownDisplay = document.getElementById("countdownDisplay");
     const modalControls = document.getElementById("modalBody"); // The div containing buttons, etc.
     modalControls.style.display = "none"; // Hide controls during countdown
@@ -808,7 +898,7 @@ async function startMatchAnimation(matchId) {
             countdownDisplay.innerHTML = `<div class="countdown">${num}</div>`;
             setTimeout(() => countdown(num - 1), 1000);
         } else {
-            countdownDisplay.innerHTML = `<div class="countdown">GO!</div>`;
+            countdownDisplay.innerHTML = `<div class="countdown">CODE!</div>`;
             setTimeout(async () => {
                 countdownDisplay.innerHTML = ''; // Clear countdown
                 modalControls.style.display = "block"; // Show controls again
@@ -823,16 +913,31 @@ async function startMatchAnimation(matchId) {
 async function startMatch(matchId) { // Renamed from startMatchAnimation
     await fetch(`/api/start/${matchId}`, { method: "POST" });
     const matchRes = await fetch(`/api/match/${matchId}`);
-    const match = await matchRes.json();
 
-    // Display start time
-    const startTime = new Date(match.start_time).toLocaleTimeString();
-    document.getElementById("startTimeDisplay").textContent = `Started at: ${startTime}`;
-    document.getElementById("startBtn").disabled = true;
+    // Start the live timer
+    const startTime = Date.now(); // Use client's current time for live display
+    const timerDisplay = document.getElementById("startTimeDisplay");
 
-    // Load problem
-    const problem = await fetch(`/api/problem/${match.problem}`);
-    document.getElementById("problemArea").innerHTML = await problem.text();
+    if (matchTimerInterval) clearInterval(matchTimerInterval); // Clear any existing timer
+
+    matchTimerInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const seconds = Math.floor((elapsed / 1000) % 60).toString().padStart(2, '0');
+        const minutes = Math.floor((elapsed / (1000 * 60)) % 60).toString().padStart(2, '0');
+        const hours = Math.floor(elapsed / (1000 * 60 * 60));
+        timerDisplay.textContent = `Time Elapsed: ${hours}:${minutes}:${seconds}`;
+    }, 1000);
+
+    // Enable participant buttons
+    document.getElementById("p1CompleteBtn").disabled = false;
+    document.getElementById("p2CompleteBtn").disabled = false;
+    document.getElementById("startBtn").style.display = 'none';
+
+    // Reveal the full problem description
+    const problemBody = document.getElementById("problem-body");
+    if (problemBody) {
+        problemBody.style.display = 'block';
+    }
 }
 
 async function completeMatch(matchId, participant) {
@@ -844,7 +949,7 @@ async function completeMatch(matchId, participant) {
 
     if (!res.ok) {
         const err = await res.json();
-        alert(`Error: ${err.error}`);
+        showToast(`Error: ${err.error}`, 'error');
         return;
     }
 
@@ -858,12 +963,116 @@ async function completeMatch(matchId, participant) {
 
     // If both are done, close the modal and refresh
     if (match.participant1_result && match.participant2_result) {
-        alert("Both participants have finished! Returning to bracket.");
-        closeModal();
+        // Hide start controls and show the return button
+        if (matchTimerInterval) clearInterval(matchTimerInterval);
+        document.getElementById("startTimeDisplay").textContent = "Match Complete";
+        document.getElementById('startBtn').style.display = 'none';
+        document.getElementById('startTimeDisplay').style.display = 'none';
+        document.getElementById('returnBtn').style.display = 'inline-block';
     }
 }
 
+async function resetMatch(matchId) {
+    showConfirm("Are you sure you want to reset this match? All times will be erased.", async () => {
+        const res = await fetch(`/api/reset/${matchId}`, { method: "POST" });
+
+        if (!res.ok) {
+            const err = await res.json();
+            showToast(`Error resetting match: ${err.error}`, 'error');
+            return;
+        }
+
+        // Stop the timer on reset
+        if (matchTimerInterval) clearInterval(matchTimerInterval);
+
+        // --- Update UI to reflect reset state ---
+        document.getElementById('p1Time').textContent = '';
+        document.getElementById('p2Time').textContent = '';
+        document.getElementById('p1CompleteBtn').disabled = true;
+        document.getElementById('p2CompleteBtn').disabled = true;
+
+        const startBtn = document.getElementById('startBtn');
+        startBtn.style.display = 'inline-block';
+        startBtn.disabled = false;
+        
+        document.getElementById('startTimeDisplay').textContent = '';
+        document.getElementById('startTimeDisplay').style.display = 'inline-block';
+        document.getElementById('returnBtn').style.display = 'none';
+
+        showToast("Match has been reset.", 'success');
+    });
+}
 
 if (window.location.pathname === "/") {
     loadBracket();
 }
+
+/* -----------------------------------------
+   UI HELPERS (TOASTS & CONFIRM MODAL)
+------------------------------------------*/
+
+function showToast(message, type = 'info') { // types: info, success, error
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 5000); // Remove after 5 seconds
+}
+
+function showConfirm(message, onConfirm) {
+    const modal = document.getElementById('confirmModal');
+    const msgEl = document.getElementById('confirmMessage');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+
+    msgEl.textContent = message;
+
+    const close = () => modal.style.display = 'none';
+
+    const confirmHandler = () => {
+        close();
+        onConfirm();
+    };
+
+    // Use .cloneNode(true) to remove old event listeners
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    newConfirmBtn.addEventListener('click', confirmHandler);
+
+    cancelBtn.onclick = close;
+
+    modal.style.display = 'flex';
+}
+
+/* -----------------------------------------
+   GLOBAL EVENT LISTENERS
+------------------------------------------*/
+
+window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+        const matchModal = document.getElementById('matchModal');
+        const confirmModal = document.getElementById('confirmModal');
+
+        if (matchModal.style.display === 'flex') {
+            if (matchTimerInterval) clearInterval(matchTimerInterval);
+            matchModal.style.display = 'none'; // Just hide, don't reload
+        } else if (confirmModal.style.display === 'flex') {
+            confirmModal.style.display = 'none'; // Same as clicking "Cancel"
+        }
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const bracket = document.getElementById('bracket');
+    const bracketHeader = document.getElementById('bracket-header');
+    if (bracket && bracketHeader) {
+        bracket.addEventListener('scroll', () => {
+            bracketHeader.scrollLeft = bracket.scrollLeft;
+        });
+    }
+});

@@ -4,6 +4,9 @@
 <head>
     <title>House Coding Competition</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* Modal Overlay */
         .modal-overlay {
@@ -84,23 +87,42 @@
     </style>
 </head>
 <body>
-<h1>🏆 House Coding Tournament</h1>
-
-<div id="createSection" style="display:none;">
-    <button onclick="createBracket('single')">Single Elimination</button>
-    <button onclick="createBracket('double')">Double Elimination</button>
+<div class="page-header">
+    <h1>🏆 House Coding 2026</h1>
+    <div id="createSection" style="display:none;">
+        <button onclick="createBracket('single')">Single Elimination</button>
+        <button onclick="createBracket('double')">Double Elimination</button>
+    </div>
 </div>
 
-<div id="bracket"></div>
+<div id="bracket-container">
+    <div id="bracket-header"></div>
+    <div id="bracket"></div>
+</div>
 
 <!-- Match Modal Overlay -->
 <div id="matchModal" class="modal-overlay" style="display:none;">
     <div class="modal-content">
         <h1 id="modalTitle"></h1>
+        <div id="countdownDisplay"></div>
         <div id="modalBody">
             <!-- Content will be injected by JavaScript -->
         </div>
-        <div id="problemArea"></div>
+        
+    </div>
+</div>
+
+<!-- Toast Notification Container -->
+<div id="toast-container"></div>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="modal-overlay" style="display:none;">
+    <div class="confirm-modal-content">
+        <p id="confirmMessage"></p>
+        <div class="confirm-buttons">
+            <button id="confirmBtn" class="confirm-btn-yes">Confirm</button>
+            <button id="cancelBtn" class="confirm-btn-no">Cancel</button>
+        </div>
     </div>
 </div>
 <script src="/static/script.js"></script>

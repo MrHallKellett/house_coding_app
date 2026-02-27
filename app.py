@@ -2,15 +2,19 @@
 import os
 import json
 import random
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from flask import Flask, render_template, jsonify, request
 import markdown
+from collections import defaultdict
 
 app = Flask(__name__)
 
 BRACKET_FILE = "bracket.json"
 
 PROBLEMS_DIR = "problems"
+
+# HKT is UTC+8
+HKT_TZ = timezone(timedelta(hours=8))
 
 
 # -----------------------------
@@ -70,16 +74,46 @@ def assign_problem_for_round(round_num):
         return random.choice(ALL_PROBLEMS)
     return "default-problem.md" # Fallback if no problems at all
 
+def smart_shuffle_participants(participants_list_of_dicts):
+    """
+    Shuffles participants to minimize same-house matchups in the first round.
+    It arranges the list so that when paired sequentially (p1 vs p2, p3 vs p4),
+    the chances of p1 and p2 being from the same house are low.
+    """
+    participants_by_house = defaultdict(list)
+    for p in participants_list_of_dicts:
+        participants_by_house[p['house']].append(p)
+
+    # Sort houses by number of participants, descending. This helps place the largest groups first.
+    sorted_houses = sorted(participants_by_house.keys(), key=lambda h: len(participants_by_house[h]), reverse=True)
+
+    shuffled_list = []
+    
+    # We will draw one participant from each house in a round-robin fashion.
+    # This continues until all participants are placed.
+    while len(shuffled_list) < len(participants_list_of_dicts):
+        for house in sorted_houses:
+            if participants_by_house[house]:
+                # For an element of randomness, pop a random participant from the house list
+                participant_to_add = participants_by_house[house].pop(random.randint(0, len(participants_by_house[house])-1))
+                shuffled_list.append(participant_to_add)
+
+    return shuffled_list
+
 def generate_single_elim(participants_list_of_dicts):
 
     n = len(participants_list_of_dicts)
 
     
 
-    if (n & (n - 1)) != 0:
-        raise ValueError("Participants must be a power of 2")
-    
-    random.shuffle(participants_list_of_dicts)
+    # For single elim, we need a power of 2.
+    # The logic can be extended to handle non-power-of-2 with byes, but for now we'll stick to the requirement.
+    is_power_of_two = (n > 0) and ((n & (n - 1)) == 0)
+    if not is_power_of_two:
+         raise ValueError("Single elimination requires a power of 2 number of participants.")
+
+    # Use the new smart shuffle instead of random.shuffle
+    participants_list_of_dicts = smart_shuffle_participants(participants_list_of_dicts)
 
     total_rounds = 0
     temp_n = n
@@ -157,8 +191,9 @@ def generate_single_elim(participants_list_of_dicts):
             matches[match_index]["loser_proceeds_to"] = third_place_match_num
     return matches
     
-def _generate_ub_matches(participants_list_of_dicts):
-    random.shuffle(participants_list_of_dicts)
+def _generate_ub_matches(participants_list):
+    # Use the new smart shuffle
+    participants_list_of_dicts = smart_shuffle_participants(participants_list)
     n = len(participants_list_of_dicts)
     
     total_ub_matches = n - 1
@@ -214,11 +249,11 @@ def generate_double_elim(participants_list_of_dicts):
     """
     Generates a double-elimination bracket for a power-of-two number of participants.
     """
-    random.shuffle(participants_list_of_dicts)
     n = len(participants_list_of_dicts)
 
     if (n & (n - 1)) != 0 or n < 4:
         raise ValueError("Double elimination requires a power of 2 with at least 4 participants.")
+    # Shuffling is now handled inside _generate_ub_matches
 
     # --- 1. Generate Upper Bracket ---
     upper_matches = _generate_ub_matches(participants_list_of_dicts)
@@ -327,11 +362,11 @@ def generate_hybrid_elim(participants_list_of_dicts):
     Runs 1v1 rounds until 3 participants remain, then creates a 3-way
     round-robin final.
     """
-    random.shuffle(participants_list_of_dicts)
     n = len(participants_list_of_dicts)
 
     if n not in [12, 24]:
         raise ValueError("Hybrid elimination only supports 12 or 24 participants.")
+    current_participants = smart_shuffle_participants(participants_list_of_dicts)
 
     matches = []
     match_num_counter = 1
@@ -435,7 +470,7 @@ def create_bracket():
     if elim_type == "double":
         bracket = generate_double_elim(participants_list_of_dicts)
     elif elim_type == "single" and (n & (n - 1)) == 0 and n != 0: # Power of 2
-        bracket = generate_single_elim(participants_list_of_dicts)    
+        bracket = generate_single_elim(participants_list_of_dicts)
     elif n in [12, 24]:
         bracket = generate_hybrid_elim(participants_list_of_dicts)
     else:
@@ -467,7 +502,7 @@ def start_match(match_id):
     if not match:
         return jsonify({"error": "Match not found"}), 404
 
-    match["start_time"] = datetime.utcnow().isoformat()
+    match["start_time"] = datetime.now(HKT_TZ).isoformat()
 
     save_bracket(bracket)
 
@@ -489,8 +524,8 @@ def complete_match(match_id):
     if not match["start_time"]:
         return jsonify({"error": "Match not started"}), 400
 
-    end_time = datetime.utcnow()
-    start_time = datetime.fromisoformat(match["start_time"])
+    end_time = datetime.now(HKT_TZ)
+    start_time = datetime.fromisoformat(match["start_time"]) # This will be timezone-aware
 
     elapsed = str(end_time - start_time)
 
@@ -599,6 +634,23 @@ def complete_match(match_id):
 
     save_bracket(bracket)
     return jsonify({"success": True})
+
+@app.route("/api/reset/<int:match_id>", methods=["POST"])
+def reset_match(match_id):
+    bracket = load_bracket()
+    match = next((m for m in bracket if m["match_num"] == match_id), None)
+
+    if not match:
+        return jsonify({"error": "Match not found"}), 404
+
+    # Reset match progress
+    match["start_time"] = None
+    match["participant1_result"] = None
+    match["participant2_result"] = None
+
+    save_bracket(bracket)
+    return jsonify({"success": True})
+
 
 @app.route("/api/problem/<filename>")
 def get_problem(filename):
