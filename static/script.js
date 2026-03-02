@@ -757,9 +757,10 @@ function getParticipantTimeOnly(result) {
 
 function formatProblemName(filename) {
     if (!filename) return '';
-    // Converts 'some-problem.md' to 'Some Problem'
+    // Converts '1-some-problem.md' to 'Some Problem'
     return filename
         .replace('.md', '')
+        .replace(/^\d+-/, '') // Remove numeric prefix like "1-"
         .replace(/-/g, ' ')
         .replace(/_/g, ' ')
         .replace(/\b\w/g, char => char.toUpperCase());

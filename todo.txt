@@ -1,3 +1,1 @@
-difficulty prefix from problem filename should not display.
-problems should not be duplicated. show error if not enough when first making bracket
 animated scroll of problem display in modal?

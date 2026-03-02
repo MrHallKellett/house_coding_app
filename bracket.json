@@ -3,60 +3,28 @@
         "match_num": 1,
         "winner_proceeds_to": 17,
         "loser_proceeds_to": null,
-        "problem": "1apple.md",
+        "problem": "1six.md",
+        "problem_difficulty": 1,
         "participant1": {
             "name": "Henry",
             "house": "Y"
         },
         "participant2": {
-            "name": "Scarlett",
+            "name": "Mia",
             "house": "M"
         },
-        "participant1_result": "0:00:17.840582",
-        "participant2_result": "0:00:21.524611",
-        "start_time": "2026-02-27T22:42:05.289739+08:00"
+        "participant1_result": "0:38:13.222372",
+        "participant2_result": "0:38:16.351023",
+        "start_time": "2026-03-01T13:30:03.971257+08:00"
     },
     {
         "match_num": 2,
         "winner_proceeds_to": 17,
         "loser_proceeds_to": null,
-        "problem": "1apple.md",
+        "problem": "1triangle copy 2.md",
+        "problem_difficulty": 1,
         "participant1": {
-            "name": "Noah",
-            "house": "B"
-        },
-        "participant2": {
-            "name": "Lily",
-            "house": "C"
-        },
-        "participant1_result": "0:00:29.172667",
-        "participant2_result": "0:00:30.945694",
-        "start_time": "2026-02-27T22:43:17.433369+08:00"
-    },
-    {
-        "match_num": 3,
-        "winner_proceeds_to": 18,
-        "loser_proceeds_to": null,
-        "problem": "3scurvy.md",
-        "participant1": {
-            "name": "Mateo",
-            "house": "Y"
-        },
-        "participant2": {
-            "name": "Ava",
-            "house": "M"
-        },
-        "participant1_result": null,
-        "participant2_result": null,
-        "start_time": null
-    },
-    {
-        "match_num": 4,
-        "winner_proceeds_to": 18,
-        "loser_proceeds_to": null,
-        "problem": "2distance.md",
-        "participant1": {
-            "name": "Daniel",
+            "name": "Alexander",
             "house": "B"
         },
         "participant2": {
@@ -68,10 +36,11 @@
         "start_time": null
     },
     {
-        "match_num": 5,
-        "winner_proceeds_to": 19,
+        "match_num": 3,
+        "winner_proceeds_to": 18,
         "loser_proceeds_to": null,
-        "problem": "2waves.md",
+        "problem": "1apple copy.md",
+        "problem_difficulty": 1,
         "participant1": {
             "name": "Jackson",
             "house": "Y"
@@ -85,16 +54,53 @@
         "start_time": null
     },
     {
-        "match_num": 6,
-        "winner_proceeds_to": 19,
+        "match_num": 4,
+        "winner_proceeds_to": 18,
         "loser_proceeds_to": null,
-        "problem": "1stuff.md",
+        "problem": "1boat copy 4.md",
+        "problem_difficulty": 1,
         "participant1": {
-            "name": "Lucas",
+            "name": "Noah",
             "house": "B"
         },
         "participant2": {
-            "name": "Abigail",
+            "name": "Grace",
+            "house": "C"
+        },
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
+        "match_num": 5,
+        "winner_proceeds_to": 19,
+        "loser_proceeds_to": null,
+        "problem": "1triangle copy 4.md",
+        "problem_difficulty": 1,
+        "participant1": {
+            "name": "Liam",
+            "house": "Y"
+        },
+        "participant2": {
+            "name": "Emily",
+            "house": "M"
+        },
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
+        "match_num": 6,
+        "winner_proceeds_to": 19,
+        "loser_proceeds_to": null,
+        "problem": "1boat copy 3.md",
+        "problem_difficulty": 1,
+        "participant1": {
+            "name": "Sebastian",
+            "house": "B"
+        },
+        "participant2": {
+            "name": "Isabella",
             "house": "C"
         },
         "participant1_result": null,
@@ -105,9 +111,10 @@
         "match_num": 7,
         "winner_proceeds_to": 20,
         "loser_proceeds_to": null,
-        "problem": "3scurvy.md",
+        "problem": "1boat.md",
+        "problem_difficulty": 1,
         "participant1": {
-            "name": "Mason",
+            "name": "Benjamin",
             "house": "Y"
         },
         "participant2": {
@@ -122,77 +129,10 @@
         "match_num": 8,
         "winner_proceeds_to": 20,
         "loser_proceeds_to": null,
-        "problem": "1apple.md",
+        "problem": "1stuff.md",
+        "problem_difficulty": 1,
         "participant1": {
-            "name": "Alexander",
-            "house": "B"
-        },
-        "participant2": {
-            "name": "Harper",
-            "house": "C"
-        },
-        "participant1_result": null,
-        "participant2_result": null,
-        "start_time": null
-    },
-    {
-        "match_num": 9,
-        "winner_proceeds_to": 21,
-        "loser_proceeds_to": null,
-        "problem": "1apple.md",
-        "participant1": {
-            "name": "Benjamin",
-            "house": "Y"
-        },
-        "participant2": {
-            "name": "Amelia",
-            "house": "M"
-        },
-        "participant1_result": null,
-        "participant2_result": null,
-        "start_time": null
-    },
-    {
-        "match_num": 10,
-        "winner_proceeds_to": 21,
-        "loser_proceeds_to": null,
-        "problem": "2waves.md",
-        "participant1": {
-            "name": "Sebastian",
-            "house": "B"
-        },
-        "participant2": {
-            "name": "Isabella",
-            "house": "C"
-        },
-        "participant1_result": null,
-        "participant2_result": null,
-        "start_time": null
-    },
-    {
-        "match_num": 11,
-        "winner_proceeds_to": 22,
-        "loser_proceeds_to": null,
-        "problem": "2kraken.md",
-        "participant1": {
-            "name": "Liam",
-            "house": "Y"
-        },
-        "participant2": {
-            "name": "Emily",
-            "house": "M"
-        },
-        "participant1_result": null,
-        "participant2_result": null,
-        "start_time": null
-    },
-    {
-        "match_num": 12,
-        "winner_proceeds_to": 22,
-        "loser_proceeds_to": null,
-        "problem": "2kraken.md",
-        "participant1": {
-            "name": "Ethan",
+            "name": "Elijah",
             "house": "B"
         },
         "participant2": {
@@ -204,10 +144,119 @@
         "start_time": null
     },
     {
+        "match_num": 9,
+        "winner_proceeds_to": 21,
+        "loser_proceeds_to": null,
+        "problem": "1fish.md",
+        "problem_difficulty": 1,
+        "participant1": {
+            "name": "Logan",
+            "house": "Y"
+        },
+        "participant2": {
+            "name": "Ava",
+            "house": "M"
+        },
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
+        "match_num": 10,
+        "winner_proceeds_to": 21,
+        "loser_proceeds_to": null,
+        "problem": "1triangle copy 3.md",
+        "problem_difficulty": 1,
+        "participant1": {
+            "name": "Daniel",
+            "house": "B"
+        },
+        "participant2": {
+            "name": "Lily",
+            "house": "C"
+        },
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
+        "match_num": 11,
+        "winner_proceeds_to": 22,
+        "loser_proceeds_to": null,
+        "problem": "1apple.md",
+        "problem_difficulty": 1,
+        "participant1": {
+            "name": "Mason",
+            "house": "Y"
+        },
+        "participant2": {
+            "name": "Scarlett",
+            "house": "M"
+        },
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
+        "match_num": 12,
+        "winner_proceeds_to": 22,
+        "loser_proceeds_to": null,
+        "problem": "1boat copy 2.md",
+        "problem_difficulty": 1,
+        "participant1": {
+            "name": "Lucas",
+            "house": "B"
+        },
+        "participant2": {
+            "name": "Ella",
+            "house": "C"
+        },
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
         "match_num": 13,
         "winner_proceeds_to": 23,
         "loser_proceeds_to": null,
         "problem": "1triangle.md",
+        "problem_difficulty": 1,
+        "participant1": {
+            "name": "Mateo",
+            "house": "Y"
+        },
+        "participant2": {
+            "name": "Amelia",
+            "house": "M"
+        },
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
+        "match_num": 14,
+        "winner_proceeds_to": 23,
+        "loser_proceeds_to": null,
+        "problem": "1triangle copy.md",
+        "problem_difficulty": 1,
+        "participant1": {
+            "name": "Ethan",
+            "house": "B"
+        },
+        "participant2": {
+            "name": "Abigail",
+            "house": "C"
+        },
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
+    },
+    {
+        "match_num": 15,
+        "winner_proceeds_to": 24,
+        "loser_proceeds_to": null,
+        "problem": "1boat copy.md",
+        "problem_difficulty": 1,
         "participant1": {
             "name": "Oliver",
             "house": "Y"
@@ -221,50 +270,17 @@
         "start_time": null
     },
     {
-        "match_num": 14,
-        "winner_proceeds_to": 23,
+        "match_num": 16,
+        "winner_proceeds_to": 24,
         "loser_proceeds_to": null,
-        "problem": "2pirates.md",
+        "problem": "1triangle copy 5.md",
+        "problem_difficulty": 1,
         "participant1": {
             "name": "James",
             "house": "B"
         },
         "participant2": {
-            "name": "Ella",
-            "house": "C"
-        },
-        "participant1_result": null,
-        "participant2_result": null,
-        "start_time": null
-    },
-    {
-        "match_num": 15,
-        "winner_proceeds_to": 24,
-        "loser_proceeds_to": null,
-        "problem": "1fish.md",
-        "participant1": {
-            "name": "Logan",
-            "house": "Y"
-        },
-        "participant2": {
-            "name": "Mia",
-            "house": "M"
-        },
-        "participant1_result": null,
-        "participant2_result": null,
-        "start_time": null
-    },
-    {
-        "match_num": 16,
-        "winner_proceeds_to": 24,
-        "loser_proceeds_to": null,
-        "problem": "1six.md",
-        "participant1": {
-            "name": "Elijah",
-            "house": "B"
-        },
-        "participant2": {
-            "name": "Grace",
+            "name": "Harper",
             "house": "C"
         },
         "participant1_result": null,
@@ -275,24 +291,23 @@
         "match_num": 17,
         "winner_proceeds_to": 25,
         "loser_proceeds_to": null,
-        "problem": "1six.md",
+        "problem": "2pirates copy 4.md",
+        "problem_difficulty": 2,
         "participant1": {
             "name": "Henry",
             "house": "Y"
         },
-        "participant2": {
-            "name": "Noah",
-            "house": "B"
-        },
-        "participant1_result": "0:00:06.039431",
-        "participant2_result": "0:00:04.607434",
-        "start_time": "2026-02-27T22:45:55.670369+08:00"
+        "participant2": null,
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
     },
     {
         "match_num": 18,
         "winner_proceeds_to": 25,
         "loser_proceeds_to": null,
-        "problem": "2waves.md",
+        "problem": "2distance.md",
+        "problem_difficulty": 2,
         "participant1": null,
         "participant2": null,
         "participant1_result": null,
@@ -303,7 +318,8 @@
         "match_num": 19,
         "winner_proceeds_to": 26,
         "loser_proceeds_to": null,
-        "problem": "3scurvy.md",
+        "problem": "2pirates.md",
+        "problem_difficulty": 2,
         "participant1": null,
         "participant2": null,
         "participant1_result": null,
@@ -314,7 +330,8 @@
         "match_num": 20,
         "winner_proceeds_to": 26,
         "loser_proceeds_to": null,
-        "problem": "1six.md",
+        "problem": "2pirates copy.md",
+        "problem_difficulty": 2,
         "participant1": null,
         "participant2": null,
         "participant1_result": null,
@@ -325,7 +342,8 @@
         "match_num": 21,
         "winner_proceeds_to": 27,
         "loser_proceeds_to": null,
-        "problem": "3palindromes.md",
+        "problem": "2pirates copy 3.md",
+        "problem_difficulty": 2,
         "participant1": null,
         "participant2": null,
         "participant1_result": null,
@@ -336,7 +354,8 @@
         "match_num": 22,
         "winner_proceeds_to": 27,
         "loser_proceeds_to": null,
-        "problem": "4final.md",
+        "problem": "2pirates copy 2.md",
+        "problem_difficulty": 2,
         "participant1": null,
         "participant2": null,
         "participant1_result": null,
@@ -347,7 +366,8 @@
         "match_num": 23,
         "winner_proceeds_to": 28,
         "loser_proceeds_to": null,
-        "problem": "1six.md",
+        "problem": "2waves.md",
+        "problem_difficulty": 2,
         "participant1": null,
         "participant2": null,
         "participant1_result": null,
@@ -359,6 +379,7 @@
         "winner_proceeds_to": 28,
         "loser_proceeds_to": null,
         "problem": "2kraken.md",
+        "problem_difficulty": 2,
         "participant1": null,
         "participant2": null,
         "participant1_result": null,
@@ -369,11 +390,9 @@
         "match_num": 25,
         "winner_proceeds_to": 29,
         "loser_proceeds_to": null,
-        "problem": "2waves.md",
-        "participant1": {
-            "name": "Noah",
-            "house": "B"
-        },
+        "problem": "3scurvy.md",
+        "problem_difficulty": 3,
+        "participant1": null,
         "participant2": null,
         "participant1_result": null,
         "participant2_result": null,
@@ -383,7 +402,8 @@
         "match_num": 26,
         "winner_proceeds_to": 29,
         "loser_proceeds_to": null,
-        "problem": "1stuff.md",
+        "problem": "3palindromes copy 5.md",
+        "problem_difficulty": 3,
         "participant1": null,
         "participant2": null,
         "participant1_result": null,
@@ -394,7 +414,8 @@
         "match_num": 27,
         "winner_proceeds_to": 30,
         "loser_proceeds_to": null,
-        "problem": "1boat.md",
+        "problem": "3palindromes copy 4.md",
+        "problem_difficulty": 3,
         "participant1": null,
         "participant2": null,
         "participant1_result": null,
@@ -405,7 +426,8 @@
         "match_num": 28,
         "winner_proceeds_to": 30,
         "loser_proceeds_to": null,
-        "problem": "3scurvy.md",
+        "problem": "3palindromes copy 6.md",
+        "problem_difficulty": 3,
         "participant1": null,
         "participant2": null,
         "participant1_result": null,
@@ -416,7 +438,8 @@
         "match_num": 29,
         "winner_proceeds_to": 31,
         "loser_proceeds_to": 32,
-        "problem": "2pirates.md",
+        "problem": "3palindromes copy 2.md",
+        "problem_difficulty": 3,
         "participant1": null,
         "participant2": null,
         "participant1_result": null,
@@ -427,7 +450,8 @@
         "match_num": 30,
         "winner_proceeds_to": 31,
         "loser_proceeds_to": 32,
-        "problem": "2pirates.md",
+        "problem": "3palindromes copy 3.md",
+        "problem_difficulty": 3,
         "participant1": null,
         "participant2": null,
         "participant1_result": null,
@@ -438,7 +462,8 @@
         "match_num": 31,
         "winner_proceeds_to": null,
         "loser_proceeds_to": null,
-        "problem": "3scurvy.md",
+        "problem": "3palindromes copy.md",
+        "problem_difficulty": 3,
         "participant1": null,
         "participant2": null,
         "participant1_result": null,
@@ -449,7 +474,8 @@
         "match_num": 32,
         "winner_proceeds_to": null,
         "loser_proceeds_to": null,
-        "problem": "3palindromes.md",
+        "problem": "3final.md",
+        "problem_difficulty": 3,
         "participant1": null,
         "participant2": null,
         "participant1_result": null,

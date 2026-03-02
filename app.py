@@ -35,44 +35,47 @@ def load_bracket():
     except Exception:
         return None
 
-PROBLEMS_DIR = "problems" # Already defined, but ensure it's accessible
-
-def get_problems_by_round():
-    problems_by_round = {}
-    all_problems = []
+def get_problems_by_difficulty():
+    """
+    Scans the PROBLEMS_DIR and groups markdown files by a difficulty
+    prefix in their filename (e.g., '1-easy.md', '2-medium.md').
+    """
+    problems_by_difficulty = defaultdict(list)
     if not os.path.exists(PROBLEMS_DIR):
         os.makedirs(PROBLEMS_DIR) # Ensure directory exists
     for f in os.listdir(PROBLEMS_DIR):
         if f.endswith(".md"):
-            all_problems.append(f)
             try:
-                # Assuming problem names like "1-problem-name.md"
-                round_num_str = f.split('-')[0]
-                if round_num_str.isdigit():
-                    round_num = int(round_num_str)
-                    problems_by_round.setdefault(round_num, []).append(f)
-                else:
-                    # Problems without a numeric round prefix, put them in a general pool (round 0)
-                    problems_by_round.setdefault(0, []).append(f)
+                # Assumes problem names like "1-problem-name.md"
+                difficulty_str = f[0]
+                if difficulty_str.isdigit():
+                    difficulty = int(difficulty_str)
+                    problems_by_difficulty[difficulty].append(f)
             except (ValueError, IndexError):
-                problems_by_round.setdefault(0, []).append(f)
-    return problems_by_round, all_problems
+                # Ignore files without a valid numeric prefix
+                pass
+    return problems_by_difficulty
 
-PROBLEMS_BY_ROUND, ALL_PROBLEMS = get_problems_by_round()
+PROBLEMS_BY_DIFFICULTY = get_problems_by_difficulty()
 
 def save_bracket(bracket):
     with open(BRACKET_FILE, "w") as f:
         json.dump(bracket, f, indent=4)
 
 
+def assign_problem(round_num, available_problems_by_difficulty):
+    """
+    Assigns a problem based on the round number and available problems.
+    Removes the chosen problem from the available pool to prevent duplicates.
+    """
+    difficulty = 1 if round_num == 1 else 2 if round_num == 2 else 3
 
-def assign_problem_for_round(round_num):
-    if round_num in PROBLEMS_BY_ROUND and PROBLEMS_BY_ROUND[round_num]:
-        return random.choice(PROBLEMS_BY_ROUND[round_num])
-    # Fallback: if no specific problems for this round, use any available problem
-    if ALL_PROBLEMS:
-        return random.choice(ALL_PROBLEMS)
-    return "default-problem.md" # Fallback if no problems at all
+    if not available_problems_by_difficulty.get(difficulty):
+        # This should be caught by the pre-check, but is a safeguard.
+        raise ValueError(f"Not enough unique problems for difficulty level {difficulty}.")
+
+    problem_file = available_problems_by_difficulty[difficulty].pop(0) # Get and remove first problem
+    return problem_file, difficulty
 
 def smart_shuffle_participants(participants_list_of_dicts):
     """
@@ -100,17 +103,26 @@ def smart_shuffle_participants(participants_list_of_dicts):
 
     return shuffled_list
 
-def generate_single_elim(participants_list_of_dicts):
+def generate_single_elim(participants_list_of_dicts, available_problems):
 
     n = len(participants_list_of_dicts)
-
-    
 
     # For single elim, we need a power of 2.
     # The logic can be extended to handle non-power-of-2 with byes, but for now we'll stick to the requirement.
     is_power_of_two = (n > 0) and ((n & (n - 1)) == 0)
     if not is_power_of_two:
          raise ValueError("Single elimination requires a power of 2 number of participants.")
+
+    # --- Pre-flight check for problems ---
+    rounds_to_play = (n - 1).bit_length() -1
+    required_problems = defaultdict(int)
+    for r in range(1, rounds_to_play + 1):
+        matches_in_round = n // (2**r)
+        difficulty = 1 if r == 1 else 2 if r == 2 else 3
+        required_problems[difficulty] += matches_in_round
+    if n >= 4: # 3rd place match
+        difficulty = 1 if rounds_to_play == 1 else 2 if rounds_to_play == 2 else 3
+        required_problems[difficulty] += 1
 
     # Use the new smart shuffle instead of random.shuffle
     participants_list_of_dicts = smart_shuffle_participants(participants_list_of_dicts)
@@ -129,6 +141,7 @@ def generate_single_elim(participants_list_of_dicts):
             "winner_proceeds_to": None,
             "loser_proceeds_to": None,
             "problem": None, # Will assign later
+            "problem_difficulty": None,
             "participant1": None,
             "participant2": None,
             "participant1_result": None,
@@ -142,7 +155,8 @@ def generate_single_elim(participants_list_of_dicts):
         match_idx = i
         matches[match_idx]["participant1"] = participants_list_of_dicts[i*2]
         matches[match_idx]["participant2"] = participants_list_of_dicts[i*2 + 1]
-        matches[match_idx]["problem"] = assign_problem_for_round(1) # Round 1
+        problem_file, difficulty = assign_problem(1, available_problems)
+        matches[match_idx]["problem"], matches[match_idx]["problem_difficulty"] = problem_file, difficulty
 
     # --- Wire winners correctly ---
     current_round_start_idx = 0
@@ -159,7 +173,8 @@ def generate_single_elim(participants_list_of_dicts):
             matches[current_round_start_idx + i + 1]["winner_proceeds_to"] = matches[parent_match_idx]["match_num"]
             
             # Assign problem for the parent match (which is in the next round)
-            matches[parent_match_idx]["problem"] = assign_problem_for_round(current_round_num)
+            problem_file, difficulty = assign_problem(current_round_num, available_problems)
+            matches[parent_match_idx]["problem"], matches[parent_match_idx]["problem_difficulty"] = problem_file, difficulty
 
         current_round_start_idx = next_match_start_idx
         current_round_size //= 2
@@ -172,12 +187,14 @@ def generate_single_elim(participants_list_of_dicts):
         semi_final_matches_indices = [i for i, m in enumerate(matches) if m.get("winner_proceeds_to") == final_match_num]
 
         third_place_match_num = len(matches) + 1
+        problem_file, difficulty = assign_problem(total_rounds, available_problems)
 
         matches.append({
             "match_num": third_place_match_num,
             "winner_proceeds_to": None,
             "loser_proceeds_to": None, # This will be wired later
-            "problem": assign_problem_for_round(total_rounds), # 3rd place is usually last round
+            "problem": problem_file,
+            "problem_difficulty": difficulty,
             "participant1": None,
             "participant2": None,
             "participant1_result": None,
@@ -191,7 +208,7 @@ def generate_single_elim(participants_list_of_dicts):
             matches[match_index]["loser_proceeds_to"] = third_place_match_num
     return matches
     
-def _generate_ub_matches(participants_list):
+def _generate_ub_matches(participants_list, available_problems):
     # Use the new smart shuffle
     participants_list_of_dicts = smart_shuffle_participants(participants_list)
     n = len(participants_list_of_dicts)
@@ -211,6 +228,7 @@ def _generate_ub_matches(participants_list):
             "winner_proceeds_to": None,
             "loser_proceeds_to": None,
             "problem": None,
+            "problem_difficulty": None,
             "participant1": None,
             "participant2": None,
             "participant1_result": None,
@@ -223,7 +241,8 @@ def _generate_ub_matches(participants_list):
         match_idx = i
         ub_matches[match_idx]["participant1"] = participants_list_of_dicts[i*2]
         ub_matches[match_idx]["participant2"] = participants_list_of_dicts[i*2 + 1]
-        ub_matches[match_idx]["problem"] = assign_problem_for_round(1)
+        problem_file, difficulty = assign_problem(1, available_problems)
+        ub_matches[match_idx]["problem"], ub_matches[match_idx]["problem_difficulty"] = problem_file, difficulty
 
     current_round_start_idx = 0
     current_round_size = first_round_matches_count
@@ -237,7 +256,8 @@ def _generate_ub_matches(participants_list):
 
             ub_matches[current_round_start_idx + i]["winner_proceeds_to"] = ub_matches[parent_match_idx]["match_num"]
             ub_matches[current_round_start_idx + i + 1]["winner_proceeds_to"] = ub_matches[parent_match_idx]["match_num"]
-            ub_matches[parent_match_idx]["problem"] = assign_problem_for_round(current_round_num)
+            problem_file, difficulty = assign_problem(current_round_num, available_problems)
+            ub_matches[parent_match_idx]["problem"], ub_matches[parent_match_idx]["problem_difficulty"] = problem_file, difficulty
 
         current_round_start_idx = next_match_start_idx
         current_round_size //= 2
@@ -245,7 +265,7 @@ def _generate_ub_matches(participants_list):
     
     return ub_matches
 
-def generate_double_elim(participants_list_of_dicts):
+def generate_double_elim(participants_list_of_dicts, available_problems):
     """
     Generates a double-elimination bracket for a power-of-two number of participants.
     """
@@ -256,7 +276,7 @@ def generate_double_elim(participants_list_of_dicts):
     # Shuffling is now handled inside _generate_ub_matches
 
     # --- 1. Generate Upper Bracket ---
-    upper_matches = _generate_ub_matches(participants_list_of_dicts)
+    upper_matches = _generate_ub_matches(participants_list_of_dicts, available_problems)
     upper_matches = [m for m in upper_matches if not m.get("is_third_place")]
     for match in upper_matches:
         match['bracket'] = 'upper'
@@ -269,11 +289,14 @@ def generate_double_elim(participants_list_of_dicts):
     # A DE bracket has (n-1) UB matches and (n-2) LB matches, total 2n-3.
     # Grand final is the (2n-2)th match.
     for _ in range(n - 2):
+        # For simplicity, we'll assign difficulty 1 to all lower bracket matches for now.
+        # This can be refined to have its own progression.
+        problem_file, difficulty = assign_problem(1, available_problems)
         lower_matches.append({
             "match_num": match_num_counter,
             "winner_proceeds_to": None,
             "loser_proceeds_to": None,
-            "problem": assign_problem_for_round(1), # Simplified for LB, can be refined
+            "problem": problem_file, "problem_difficulty": difficulty,
             "participant1": None,
             "participant2": None,
             "participant1_result": None,
@@ -333,11 +356,13 @@ def generate_double_elim(participants_list_of_dicts):
 
     # --- 4. Create and wire Grand Final ---
     grand_final_num = match_num_counter
+    # Grand final is always a high-difficulty problem
+    problem_file, difficulty = assign_problem(3, available_problems)
     matches.append({
         "match_num": grand_final_num,
         "winner_proceeds_to": None,
         "loser_proceeds_to": None,
-        "problem": assign_problem_for_round(len(upper_matches_by_round) + max(lowerRounds.keys() or [0]) + 1), # Heuristic for final round
+        "problem": problem_file, "problem_difficulty": difficulty,
         "participant1": None, # Winner of Upper Bracket
         "participant2": None, # Winner of Lower Bracket
         "participant1_result": None,
@@ -356,7 +381,7 @@ def generate_double_elim(participants_list_of_dicts):
 
     return matches
 
-def generate_hybrid_elim(participants_list_of_dicts):
+def generate_hybrid_elim(participants_list_of_dicts, available_problems):
     """
     Generates a bracket for 12 or 24 participants.
     Runs 1v1 rounds until 3 participants remain, then creates a 3-way
@@ -379,12 +404,14 @@ def generate_hybrid_elim(participants_list_of_dicts):
         next_round_participants = []
         current_round_match_indices = []
 
+        current_round_num += 1
         for i in range(num_matches_in_round):
+            problem_file, difficulty = assign_problem(current_round_num, available_problems)
             match = {
                 "match_num": match_num_counter,
                 "winner_proceeds_to": None, # Will be wired up later
                 "loser_proceeds_to": None,
-                "problem": assign_problem_for_round(current_round_num + 1), # Assign problem for this round
+                "problem": problem_file, "problem_difficulty": difficulty,
                 # Store full participant objects
                 "participant1": current_participants[i*2],
                 "participant2": current_participants[i*2 + 1],
@@ -402,7 +429,6 @@ def generate_hybrid_elim(participants_list_of_dicts):
                 child_match_num = matches[current_round_match_indices[i // 2]]["match_num"]
                 matches[parent_match_idx]["winner_proceeds_to"] = child_match_num
 
-        current_round_num += 1
         last_round_match_indices = list(current_round_match_indices)
         # Placeholder for winners
         current_participants = [f"Winner of M{matches[idx]['match_num']}" for idx in current_round_match_indices]
@@ -411,9 +437,10 @@ def generate_hybrid_elim(participants_list_of_dicts):
     finalists_placeholders = current_participants
     sub_matches = []
     for i in range(3):
+        problem_file, difficulty = assign_problem(current_round_num + 1, available_problems)
         sub_match = {
             "match_num": match_num_counter, # These are the sub-matches of the final
-            "problem": assign_problem_for_round(current_round_num + 1), # Assign problem for final round
+            "problem": problem_file, "problem_difficulty": difficulty,
             "participant1": None,
             "participant2": None,
             "participant1_result": None,
@@ -462,17 +489,47 @@ def create_bracket():
     with open("participants.txt") as f: participants_raw = [p.strip() for p in f if p.strip()]
     
     participants_list_of_dicts = []
+    
     for p_line in participants_raw:
         parts = p_line.split(maxsplit=1) # Split only on first space
         participants_list_of_dicts.append({"name": parts[0], "house": parts[1].upper() if len(parts) > 1 else "N/A"})
 
     n = len(participants_list_of_dicts)
-    if elim_type == "double":
-        bracket = generate_double_elim(participants_list_of_dicts)
-    elif elim_type == "single" and (n & (n - 1)) == 0 and n != 0: # Power of 2
-        bracket = generate_single_elim(participants_list_of_dicts)
+
+    # --- Problem Availability Check ---
+    # Calculate required problems based on bracket type and participant count
+    required_problems = defaultdict(int)
+    num_matches = 0
+    if elim_type == "single" and (n & (n - 1)) == 0 and n != 0:
+        num_matches = n - 1
+        if n >= 4: num_matches += 1 # 3rd place
+        # This is a simplification; a more detailed check is inside generate_single_elim
+        # For now, we'll just check total problems.
+    elif elim_type == "double" and (n & (n - 1)) == 0 and n >= 4:
+        num_matches = 2 * n - 2 # UB + LB + Final
     elif n in [12, 24]:
-        bracket = generate_hybrid_elim(participants_list_of_dicts)
+        num_matches = (n - 3) + 3 # Elimination matches + 3 final matches
+
+    available_problems_by_difficulty = get_problems_by_difficulty()
+    total_available_problems = sum(len(p_list) for p_list in available_problems_by_difficulty.values())
+
+    if total_available_problems < num_matches:
+        return jsonify({
+            "error": f"Not enough unique problems available. Required: {num_matches}, Available: {total_available_problems}. Please add more .md files to the /problems directory."
+        }), 400
+
+    # Create a mutable copy of problems for assignment, and shuffle them for randomness
+    problems_for_bracket = {
+        diff: random.sample(p_list, len(p_list)) for diff, p_list in available_problems_by_difficulty.items()
+    }
+
+    if elim_type == "double":
+        # A more detailed check would be needed here for DE problem distribution
+        bracket = generate_double_elim(participants_list_of_dicts, problems_for_bracket)
+    elif elim_type == "single" and (n & (n - 1)) == 0 and n != 0: # Power of 2
+        bracket = generate_single_elim(participants_list_of_dicts, problems_for_bracket)
+    elif n in [12, 24]:
+        bracket = generate_hybrid_elim(participants_list_of_dicts, problems_for_bracket)
     else:
         return jsonify({"error": f"Unsupported number of participants: {n}. Please use a power of 2, 12, or 24."}), 400
 
