@@ -5,6 +5,7 @@ import random
 from datetime import datetime, timezone, timedelta
 from flask import Flask, render_template, jsonify, request
 import markdown
+import re
 from collections import defaultdict
 
 app = Flask(__name__)
@@ -489,10 +490,18 @@ def create_bracket():
     with open("participants.txt") as f: participants_raw = [p.strip() for p in f if p.strip()]
     
     participants_list_of_dicts = []
-    
+    # Regex to find a house initial in parentheses at the end of the string
+    house_regex = re.compile(r'\s*\(([YCBMA])\)$', re.IGNORECASE)
+
     for p_line in participants_raw:
-        parts = p_line.split(maxsplit=1) # Split only on first space
-        participants_list_of_dicts.append({"name": parts[0], "house": parts[1].upper() if len(parts) > 1 else "N/A"})
+        match = house_regex.search(p_line)
+        if match:
+            name = house_regex.sub('', p_line).strip()
+            house = match.group(1).upper()
+            participants_list_of_dicts.append({"name": name, "house": house})
+        # If no match, we can decide how to handle it. Here, we'll assign N/A.
+        else:
+            participants_list_of_dicts.append({"name": p_line.strip(), "house": "N/A"})
 
     n = len(participants_list_of_dicts)
 

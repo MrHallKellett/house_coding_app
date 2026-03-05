@@ -338,31 +338,50 @@ function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
     };
 
     // Helper to draw the name backgrounds
-    const addNameBg = (x_pos, y_pos, color) => {
+    const addNameBg = (x_pos, y_pos, color, is_long = false) => {
         const bg_width = width * 0.45; // 45% of the box width
-        const bg_height = 22;
+        let bg_height = 22;
+        if (is_long) {
+            bg_height *= 2; // Double height for long names
+        }
         const bg_rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         bg_rect.setAttribute("x", x_pos - bg_width / 2);
-        bg_rect.setAttribute("y", y_pos - bg_height / 2 - 4); // Adjust vertical position
+        bg_rect.setAttribute("y", y_pos - bg_height / 2 - (is_long ? 10 : 4)); // Adjust vertical position
         bg_rect.setAttribute("width", bg_width);
         bg_rect.setAttribute("height", bg_height);
         bg_rect.setAttribute("rx", 4);
         bg_rect.setAttribute("fill", color);
         group.appendChild(bg_rect);
     };
-
+    
+    // Check for long names
+    const p1_is_long = p1_name_display.length > 10;
+    const p2_is_long = p2_name_display.length > 10;
+    
     // Row 1: Names
-    if (p1_house !== 'N/A') {
-        addNameBg(col1_x, row1_y, p1_color);
+    if (p1_house !== 'N/A') { // Participant 1
+        addNameBg(col1_x, row1_y, p1_color, p1_is_long);
     }
-    addText(p1_name_display, col1_x, row1_y, "14", "bold", p1_house !== 'N/A' ? "white" : "#111");
+    if (p1_is_long) {
+        const parts = p1_name_display.split('_&_');
+        addText(parts[0], col1_x, row1_y - 6, "12", "bold", "white");
+        addText(parts[1] || '', col1_x, row1_y + 10, "12", "bold", "white");
+    } else {
+        addText(p1_name_display, col1_x, row1_y, "14", "bold", p1_house !== 'N/A' ? "white" : "#111");
+    }
 
     addText("v", col2_x, row1_y, "12", "normal", "#6b7280");
 
-    if (p2_house !== 'N/A') {
-        addNameBg(col3_x, row1_y, p2_color);
+    if (p2_house !== 'N/A') { // Participant 2
+        addNameBg(col3_x, row1_y, p2_color, p2_is_long);
     }
-    addText(p2_name_display, col3_x, row1_y, "14", "bold", p2_house !== 'N/A' ? "white" : "#111");
+    if (p2_is_long) {
+        const parts = p2_name_display.split('_&_');
+        addText(parts[0], col3_x, row1_y - 6, "12", "bold", "white");
+        addText(parts[1] || '', col3_x, row1_y + 10, "12", "bold", "white");
+    } else {
+        addText(p2_name_display, col3_x, row1_y, "14", "bold", p2_house !== 'N/A' ? "white" : "#111");
+    }
 
     // Row 2: Times
     if (p1_time_display) {
