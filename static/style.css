@@ -68,6 +68,12 @@ svg {
     padding: 20px;
 }
 
+/* Style for selected match boxes in the SVG */
+.selected-match rect {
+    stroke: #d946ef; /* A vibrant fuchsia for selection */
+    stroke-width: 4px;
+}
+
 /* Modal Participant Buttons & Layout */
 .participant-btn {
     color: white;
@@ -101,6 +107,22 @@ svg {
     font-weight: bold;
     color: #6b7280;
     margin: 0 1rem;
+}
+
+/* Styles for the new multi-match modal */
+.multi-match-container {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.multi-match-column {
+    flex: 1; /* Each column takes up half the space */
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    background-color: #fdfdfe;
 }
 
 /* This was in the <style> tag in index.html, but is better here */
@@ -216,4 +238,15 @@ button {
 /* Ensure no extra margin when problem body is revealed */
 #problem-body > *:first-child {
     margin-top: 0;
+}
+
+/* Style for the auto-scrolling problem description area */
+.problem-scroll-container {
+    max-height: 350px; /* Set a max height to enable scrolling */
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    padding: 1rem;
+    border-radius: 8px;
+    background: #fff;
+    scroll-behavior: smooth; /* Makes programmatic scrolling smoother */
 }

@@ -4,15 +4,16 @@ import json
 import random
 from datetime import datetime, timezone, timedelta
 from flask import Flask, render_template, jsonify, request
-import markdown
+from flask import send_from_directory
 import re
+import markdown
 from collections import defaultdict
 
 app = Flask(__name__)
 
 BRACKET_FILE = "bracket.json"
 
-PROBLEMS_DIR = "problems"
+PROBLEMS_DIR = "static/problems"
 
 # HKT is UTC+8
 HKT_TZ = timezone(timedelta(hours=8))
@@ -560,18 +561,28 @@ def get_match(match_id):
 
 @app.route("/api/start/<int:match_id>", methods=["POST"])
 def start_match(match_id):
+    return start_matches([match_id])
 
+@app.route("/api/start_matches", methods=["POST"])
+def start_multiple_matches():
+    data = request.json
+    match_ids = data.get("match_ids", [])
+    if not match_ids:
+        return jsonify({"error": "No match IDs provided"}), 400
+    return start_matches(match_ids)
+
+def start_matches(match_ids):
+    """A helper function to start one or more matches atomically."""
     bracket = load_bracket()
+    
+    start_time_iso = datetime.now(HKT_TZ).isoformat()
 
-    match = next((m for m in bracket if m["match_num"] == match_id), None)
-
-    if not match:
-        return jsonify({"error": "Match not found"}), 404
-
-    match["start_time"] = datetime.now(HKT_TZ).isoformat()
+    for match_id in match_ids:
+        match = next((m for m in bracket if m["match_num"] == match_id), None)
+        if match:
+            match["start_time"] = start_time_iso
 
     save_bracket(bracket)
-
     return jsonify({"success": True})
 
 @app.route("/api/complete/<int:match_id>", methods=["POST"])
@@ -717,6 +728,16 @@ def reset_match(match_id):
     save_bracket(bracket)
     return jsonify({"success": True})
 
+@app.route("/api/delete_bracket", methods=["POST"])
+def delete_bracket():
+    """Deletes the bracket.json file."""
+    try:
+        if os.path.exists(BRACKET_FILE):
+            os.remove(BRACKET_FILE)
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route("/api/problem/<filename>")
 def get_problem(filename):
@@ -724,6 +745,12 @@ def get_problem(filename):
     with open(path) as f:
         html = markdown.markdown(f.read())
     return html
+
+
+@app.route('/problems/<path:filename>')
+def serve_problem_asset(filename):
+    """Serves static files (like images) from the problems directory."""
+    return send_from_directory(PROBLEMS_DIR, filename)
 
 
 if __name__ == "__main__":

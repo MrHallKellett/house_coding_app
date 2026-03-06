@@ -1,1 +1,4 @@
-animated scroll of problem display in modal?
+get images downloaded for all problems
+update problem md files after proofreading
+code in markdown should use indents not triple backticks
+update bracket to allow problems to be re-assigned?
