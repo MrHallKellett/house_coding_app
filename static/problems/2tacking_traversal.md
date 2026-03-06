@@ -30,16 +30,12 @@ Print two integers separated by a space: the final x-coordinate and y-coordinate
 
 ### Input:
 
-```
-5
-URRDR
-```
+    5
+    URRDR
 
 ### Output:
 
-```
-3 0
-```
+    3 0
 
 ### Explanation:
 
@@ -61,16 +57,12 @@ Final position: (3, 0)
 
 ### Input:
 
-```
-4
-UDLR
-```
+    4
+    UDLR
 
 ### Output:
 
-```
-0 0
-```
+    0 0
 
 ### Explanation:
 

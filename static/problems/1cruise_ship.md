@@ -39,17 +39,13 @@ If multiple cruises are cheapest, any one of them would be considered correct.
 
 ### Input:
 
-```
-3
-2
-1
-```
+    3
+    2
+    1
 
 ### Output:
 
-```
-International Cruises is the best option!
-```
+    International Cruises is the best option!
 
 ### Explanation:
 
@@ -67,16 +63,12 @@ Therefore the cheapest cruise is International Cruises.
 
 ### Input:
 
-```
-1
-3
-6
-```
+    1
+    3
+    6
 
 ### Output:
 
-```
-Hong Kong Lines is the best option!
-```
+    Hong Kong Lines is the best option!
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

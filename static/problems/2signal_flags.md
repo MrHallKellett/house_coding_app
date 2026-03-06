@@ -81,18 +81,14 @@ Print each decoded signal on a separate line. Do not print the STOP signal itsel
 
 ### Input:
 
-```
-UP UP
-UP MID
-MID MID
-```
+    UP UP
+    UP MID
+    MID MID
 
 ### Output:
 
-```
-DANGER
-HELP
-```
+    DANGER
+    HELP
 
 ### Explanation:
 
@@ -102,22 +98,18 @@ UP UP = DANGER, UP MID = HELP, then MID MID = STOP (which ends transmission but 
 
 ### Input:
 
-```
-MID UP
-DOWN UP
-MID DOWN
-DOWN MID
-MID MID
-```
+    MID UP
+    DOWN UP
+    MID DOWN
+    DOWN MID
+    MID MID
 
 ### Output:
 
-```
-NORTH
-EAST
-SOUTH
-WEST
-```
+    NORTH
+    EAST
+    SOUTH
+    WEST
 
 ### Explanation:
 

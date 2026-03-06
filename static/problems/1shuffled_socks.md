@@ -20,15 +20,11 @@ A single character, the character representing the pair without a missing sock.
 
 ### Input:
 
-```
-bab
-```
+    bab
 
 ### Output:
 
-```
-b
-```
+    b
 
 ### Explanation:
 
@@ -38,15 +34,11 @@ Both socks in pair b appear in the drawer, therefore b is the output.
 
 ### Input:
 
-```
-aa
-```
+    aa
 
 ### Output:
 
-```
-a
-```
+    a
 
 ### Explanation:
 
@@ -56,14 +48,10 @@ There is only one pair of socks in the drawer (pair a), therefore a is the outpu
 
 ### Input:
 
-```
-example
-```
+    example
 
 ### Output:
 
-```
-e
-```
+    e
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

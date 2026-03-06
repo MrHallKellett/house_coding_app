@@ -26,14 +26,10 @@ One encoded string, uppercase, lowercase, and symbols.
 
 ### Input:
 
-```
-Hello
-```
+    Hello
 
 ### Output:
 
-```
-Kfpmt
-```
+    Kfpmt
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

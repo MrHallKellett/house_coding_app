@@ -26,20 +26,16 @@ n lines, where line i contains the solution to the i th problem.
 
 ### Input:
 
-```
-3
-3 + 1 2 3
-2 * 5 4
-4 + 5 5 5 5
-```
+    3
+    3 + 1 2 3
+    2 * 5 4
+    4 + 5 5 5 5
 
 ### Output:
 
-```
-6
-20
-20
-```
+    6
+    20
+    20
 
 ### Explanation:
 
@@ -51,18 +47,14 @@ The second problem is a multiplication problem involving 5, 4. The product of th
 
 ### Input:
 
-```
-2
-1 + 3
-1 * 6
-```
+    2
+    1 + 3
+    1 * 6
 
 ### Output:
 
-```
-3
-6
-```
+    3
+    6
 
 ### Explanation:
 
@@ -74,7 +66,7 @@ The second problem is the same, since the product of a single number is also jus
 
 ### Input:
 
-```
+
 6
 4 + 10 15 99 23
 3 + 1000 2 7
@@ -82,17 +74,17 @@ The second problem is the same, since the product of a single number is also jus
 7 * 1 2 3 4 5 6 7
 2 + 9 99
 5 * 1 1 1 1 1
-```
+
 
 ### Output:
 
-```
+
 147
 1009
 216
 5040
 108
 1
-```
+
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

@@ -20,16 +20,12 @@ A single lowercase string, the plaintext.
 
 ### Input:
 
-```
-a h
-haahjr avtvyyvd
-```
+    a h
+    haahjr avtvyyvd
 
 ### Output:
 
-```
-attack tomorrow
-```
+    attack tomorrow
 
 ### Explanation:
 
@@ -41,16 +37,12 @@ To shift a to h, the encryption shifted all characters 7 places forward. Therefo
 
 ### Input:
 
-```
-a x
-pefmp xelv
-```
+    a x
+    pefmp xelv
 
 ### Output:
 
-```
-ships ahoy
-```
+    ships ahoy
 
 ### Explanation:
 

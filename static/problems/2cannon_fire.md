@@ -40,32 +40,24 @@ The message FEET! should be printed if the cannonball explodes at Henry’s feet
 
 ### Input:
 
-```
-10
-57
-2.9
-```
+    10
+    57
+    2.9
 
 ### Output:
 
-```
-SEA.
-```
+    SEA.
 
 ## Example 2
 
 ### Input:
 
-```
-10
-55
-1.0
-```
+    10
+    55
+    1.0
 
 ### Output:
 
-```
-TARGET!
-```
+    TARGET!
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

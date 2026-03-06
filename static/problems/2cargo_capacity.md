@@ -29,19 +29,15 @@ Print YES if all crates could potentially fit in the hold, otherwise print NO.
 
 ### Input:
 
-```
-10 10
-3 
-2 3
-4 2
-3 3
-```
+    10 10
+    3 
+    2 3
+    4 2
+    3 3
 
 ### Output:
 
-```
-YES
-```
+    YES
 
 ### Explanation:
 
@@ -51,18 +47,14 @@ Hold floor is 10 × 10 (area = 100). Crates: 2 × 3 (area=6), 4 × 2 (area=8), 3
 
 ### Input:
 
-```
-5 5
-2
-6 3
-4 4
-```
+    5 5
+    2
+    6 3
+    4 4
 
 ### Output:
 
-```
-NO
-```
+    NO
 
 ### Explanation:
 

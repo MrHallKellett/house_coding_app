@@ -26,15 +26,11 @@ Second integer: leftover ration packs
 
 ### Input:
 
-```
-17 5
-```
+    17 5
 
 ### Output:
 
-```
-3 2
-```
+    3 2
 
 ### Explanation:
 
@@ -44,15 +40,11 @@ Second integer: leftover ration packs
 
 ### Input:
 
-```
-24 6
-```
+    24 6
 
 ### Output:
 
-```
-4 0
-```
+    4 0
 
 ### Explanation:
 

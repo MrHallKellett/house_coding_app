@@ -22,35 +22,35 @@ If multiple crew members have taken the most sweets, output any one of them.
 
 ### Input:
 
-```
+
 2
 Alice 12
 Bob 15
-```
+
 
 ### Output:
 
-```
+
 Bob
-```
+
 
 ## Example 2
 
 ### Input:
 
-```
+
 4
 Alice 12
 Bob 11
 Charlie 12
 Dave 10
-```
+
 
 ### Output:
 
-```
+
 Alice
-```
+
 
 Note:
 
@@ -60,7 +60,7 @@ Note:
 
 ### Input:
 
-```
+
 10
 Alice 5
 Bob 1
@@ -72,12 +72,12 @@ George 16
 Harry 8
 Iris 8
 Jim 10
-```
+
 
 ### Output:
 
-```
+
 George
-```
+
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

@@ -2,8 +2,6 @@
 
 <img src="/static/problems/1calculator.jpeg" width="300"/>
 
-
-
 Henry Kellett’s calculator broke while he was out at sea. He needs help making a new one!
 
 ## Input Format
@@ -18,17 +16,13 @@ Print the result of applying the operation with the first number and the second.
 
 ### Input:
 
-```
     m
     4
     8
-```
 
 ### Output:
 
-```
     32
-```
 
 ### Explanation:
 
@@ -38,16 +32,13 @@ The first line represents multiplication, therefore the input represents the pro
 
 ### Input:
 
-```
+
     a
     3
     4
-```
 
 ### Output:
 
-```
     7
-```
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

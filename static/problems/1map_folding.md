@@ -18,15 +18,11 @@ A single positive integer - the width of the folded map.
 
 ### Input:
 
-```
-12
-```
+    12
 
 ### Output:
 
-```
-3
-```
+    3
 
 ### Explanation:
 
@@ -36,15 +32,11 @@ The map can only be folded twice. After which it’s width is 12 / 4 = 3, an odd
 
 ### Input:
 
-```
-16
-```
+    16
 
 ### Output:
 
-```
-1
-```
+    1
 
 ### Explanation:
 
@@ -54,14 +46,10 @@ The map can be folded four times.
 
 ### Input:
 
-```
-1
-```
+    1
 
 ### Output:
 
-```
-1
-```
+    1
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

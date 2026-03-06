@@ -22,46 +22,38 @@ The finished design, where . represents unpainted cells, and # represents painte
 
 ### Input:
 
-```
-3 2
-0 1 0 1
-2 2 2 2
-```
+    3 2
+    0 1 0 1
+    2 2 2 2
 
 ### Output:
 
-```
-##.
-##.
-..#
-```
+    ##.
+    ##.
+    ..#
 
 ### Explanation:
 
 In the first test, after the first rectangle is painted, the canvas looks like this:
 
-##.
-##.
-...
+    ##.
+    ##.
+    ...
 
 ## Example 2
 
 ### Input:
 
-```
-4 2
-0 2 0 1
-2 3 1 3
-```
+    4 2
+    0 2 0 1
+    2 3 1 3
 
 ### Output:
 
-```
-###.
-####
-..##
-..##
-```
+    ###.
+    ####
+    ..##
+    ..##
 
 ### Explanation:
 

@@ -25,24 +25,20 @@ A single integer, representing the total number of pieces of fruit that were sol
 
 ### Input:
 
-```
-POMELOS
-17
-ORANGES
-50
-ORANGES
-50
-LEMONS
-10
-POMELOS
-35
-```
+    POMELOS
+    17
+    ORANGES
+    50
+    ORANGES
+    50
+    LEMONS
+    10
+    POMELOS
+    35
 
 ### Output:
 
-```
-127
-```
+    127
 
 ### Explanation:
 
@@ -62,26 +58,22 @@ POMELOS
 
 ### Input:
 
-```
-LEMONS
-1
-LEMONS
-2
-LEMONS
-3
-ORANGES
-2000
-POMELOS
-39
-GRAPEFRUIT
-18
-```
+    LEMONS
+    1
+    LEMONS
+    2
+    LEMONS
+    3
+    ORANGES
+    2000
+    POMELOS
+    39
+    GRAPEFRUIT
+    18
 
 ### Output:
 
-```
-6
-```
+    6
 
 ### Explanation:
 

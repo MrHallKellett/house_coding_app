@@ -18,35 +18,27 @@ The required shape.
 
 ### Input:
 
-```
-6
-```
+    6
 
 ### Output:
 
-```
-@
-@@
-@@@
-@@@@
-@@@@@
-@@@@@@
-```
+    @
+    @@
+    @@@
+    @@@@
+    @@@@@
+    @@@@@@
 
 ## Example 2
 
 ### Input:
 
-```
-3
-```
+    3
 
 ### Output:
 
-```
-@
-@@
-@@@
-```
+    @
+    @@
+    @@@
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

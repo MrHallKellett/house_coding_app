@@ -10,7 +10,7 @@ Please help Henry determine there is a spy in his ship.
 
 The first and only line consists of a string s - the crew lineup, where each character represents the colour of the hat said crew member is wearing.
 
-The character in string s will all be the same with at most one exception.
+The characters in string s will all be the same with at most one exception.
 
 ## Output Format
 
@@ -20,15 +20,11 @@ Either the string No spy, or Spy!! depending on if there is a spy on Henry’s s
 
 ### Input:
 
-```
-aab
-```
+    aab
 
 ### Output:
 
-```
-Spy!!
-```
+    Spy!!
 
 ### Explanation:
 The third crew member has a hat of colour b, which doesn’t match the hat colours of the rest of the crew. Therefore, there is a spy on the ship.
@@ -37,14 +33,10 @@ The third crew member has a hat of colour b, which doesn’t match the hat colou
 
 ### Input:
 
-```
-a
-```
+    a
 
 ### Output:
 
-```
-No spy
-```
+    No spy
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

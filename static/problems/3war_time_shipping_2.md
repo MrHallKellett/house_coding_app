@@ -35,33 +35,25 @@ Lowercase string
 
 ### Input:
 
-```
-tuhxgrar mzdguiak
-```
+    tuhxgrar mzdguiak
 
 ### Output:
 
-```
-h
-```
+    h
 
 ### Explanation:
 
-Prefix tu shows it is a Tuesday, therefore key used is “henry”
+    Prefix tu shows it is a Tuesday, therefore key used is “henry”
 
 ## Example 2
 
 ### Input:
 
-```
-thxppxi eqo o tbzv sc tptv?
-```
+    thxppxi eqo o tbzv sc tptv?
 
 ### Output:
 
-```
-where did i park my ship?
-```
+    where did i park my ship?
 
 ### Explanation:
 

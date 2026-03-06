@@ -1,6 +1,9 @@
 let selectedMatches = []; // Global array to hold selected match IDs
 let matchTimers = {}; // Object to hold multiple timer intervals
 let scrollIntervals = {}; // Object to hold scroll animation intervals
+let activeModalMatches = []; // Holds the match IDs currently in the modal
+
+PIXELS_SCROLL_PER_FRAME = .5
 
 async function loadBracket() {
     const res = await fetch("/api/bracket");
@@ -317,6 +320,20 @@ function getRound(match, allMatches) { // Renamed 'matches' to 'allMatches' for 
 
 function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
 
+    const p1_name_display = getParticipantNameOnly(match.participant1);
+    const p2_name_display = getParticipantNameOnly(match.participant2);
+
+    // --- Dynamic Height Calculation ---
+    // Check if either name is long and will be split into two lines.
+    // A name is considered "long" if it contains ' & ' or is over 10 chars.
+    const p1_is_long = p1_name_display.includes(' & ') || p1_name_display.length > 10;
+    const p2_is_long = p2_name_display.includes(' & ') || p2_name_display.length > 10;
+
+    // If any name is long, increase the box height to accommodate the extra line.
+    if (p1_is_long || p2_is_long) {
+        height += 35; // Add 35px for three-line names
+    }
+
     const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
 
     rect.setAttribute("x", x);
@@ -344,8 +361,6 @@ function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
         }
     });
 
-    const p1_name_display = getParticipantNameOnly(match.participant1);
-    const p2_name_display = getParticipantNameOnly(match.participant2);
     const p1_time_display = getParticipantTimeOnly(match.participant1_result);
     const p2_time_display = getParticipantTimeOnly(match.participant2_result);
     const p1_house = getParticipantHouse(match.participant1);
@@ -359,9 +374,14 @@ function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
     const col2_x = x + width * 0.5;  // Center of middle column
     const col3_x = x + width * 0.75; // Center of right column
 
-    const row1_y = y + 22; // Baseline for first row
-    const row2_y = y + 42; // Baseline for second row
-    const row3_y = y + 62; // Baseline for third row
+    // --- Dynamic Vertical Alignment ---
+    // Calculate a vertical offset to center the content in taller boxes.
+    const is_tall_box = p1_is_long || p2_is_long;
+    const vertical_offset = is_tall_box ? 18 : 0; // Shift content down by 18px in tall boxes
+
+    const row1_y = y + 25 + vertical_offset; // Baseline for first row (Names)
+    const row2_y = y + 48 + vertical_offset; // Baseline for second row (Times)
+    const row3_y = y + height - 13; // Position problem title 13px from the bottom of the box
 
     // Helper to create and append text elements
     const addText = (content, x_pos, y_pos, size, weight, fill, anchor = "middle", parent = group) => {
@@ -382,11 +402,11 @@ function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
         const bg_width = width * 0.45; // 45% of the box width
         let bg_height = 22;
         if (is_long) {
-            bg_height *= 2; // Double height for long names
+            bg_height = 55; // Set fixed height for 3 lines
         }
         const bg_rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         bg_rect.setAttribute("x", x_pos - bg_width / 2);
-        bg_rect.setAttribute("y", y_pos - bg_height / 2 - (is_long ? 10 : 4)); // Adjust vertical position
+        bg_rect.setAttribute("y", y_pos - bg_height / 2 - (is_long ? 12 : 4)); // Adjust vertical position
         bg_rect.setAttribute("width", bg_width);
         bg_rect.setAttribute("height", bg_height);
         bg_rect.setAttribute("rx", 4);
@@ -394,18 +414,22 @@ function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
         group.appendChild(bg_rect);
     };
     
-    // Check for long names
-    const p1_is_long = p1_name_display.length > 10;
-    const p2_is_long = p2_name_display.length > 10;
-    
     // Row 1: Names
     if (p1_house !== 'N/A') { // Participant 1
         addNameBg(col1_x, row1_y, p1_color, p1_is_long);
     }
     if (p1_is_long) {
-        const parts = p1_name_display.split('_&_');
-        addText(parts[0], col1_x, row1_y - 6, "12", "bold", "white");
-        addText(parts[1] || '', col1_x, row1_y + 10, "12", "bold", "white");
+        let parts;
+        if (p1_name_display.includes(' & ')) {
+            // Split on " & " to handle names like "Betty & David"
+            parts = p1_name_display.split(' & ');
+        } else {
+            // Fallback for old format or just long names without '&'
+            parts = p1_name_display.split('_&_');
+        }
+        addText(parts[0].trim(), col1_x, row1_y - 24, "12", "bold", "white");
+        addText("&", col1_x, row1_y - 10, "12", "bold", "white");
+        addText((parts[1] || '').trim(), col1_x, row1_y + 4, "12", "bold", "white");
     } else {
         addText(p1_name_display, col1_x, row1_y, "14", "bold", p1_house !== 'N/A' ? "white" : "#111");
     }
@@ -416,9 +440,17 @@ function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
         addNameBg(col3_x, row1_y, p2_color, p2_is_long);
     }
     if (p2_is_long) {
-        const parts = p2_name_display.split('_&_');
-        addText(parts[0], col3_x, row1_y - 6, "12", "bold", "white");
-        addText(parts[1] || '', col3_x, row1_y + 10, "12", "bold", "white");
+        let parts;
+        if (p2_name_display.includes(' & ')) {
+            // Split on " & " to handle names like "Betty & David"
+            parts = p2_name_display.split(' & ');
+        } else {
+            // Fallback for old format or just long names without '&'
+            parts = p2_name_display.split('_&_');
+        }
+        addText(parts[0].trim(), col3_x, row1_y - 24, "12", "bold", "white");
+        addText("&", col3_x, row1_y - 10, "12", "bold", "white");
+        addText((parts[1] || '').trim(), col3_x, row1_y + 4, "12", "bold", "white");
     } else {
         addText(p2_name_display, col3_x, row1_y, "14", "bold", p2_house !== 'N/A' ? "white" : "#111");
     }
@@ -916,9 +948,12 @@ async function openMultiMatchModal(matchIds) {
         document.getElementById('returnBtn').style.display = 'inline-block';
     }
 
+    activeModalMatches = matchIds; // Set the active matches for keybindings
+
     modal.style.display = "flex";
     clearSelection(); // Clear selection after opening modal
 }
+
 
 async function openMatchModal(matchId) {
     const res = await fetch(`/api/match/${matchId}`);
@@ -927,6 +962,7 @@ async function openMatchModal(matchId) {
     // This is a single match modal, so clear any multi-match selections
     clearSelection();
 
+    activeModalMatches = [matchId]; // Set the active match for keybindings
     Object.values(scrollIntervals).forEach(clearInterval);
 
     if (!match.participant1 || !match.participant2 || (typeof match.participant1 === 'string' && match.participant1.startsWith("Winner of"))) {
@@ -1042,6 +1078,7 @@ function closeModal() {
     Object.values(scrollIntervals).forEach(clearInterval);
     scrollIntervals = {};
     matchTimers = {};
+    activeModalMatches = []; // Clear active matches when modal closes
     location.reload();
     clearSelection();
 }
@@ -1320,7 +1357,7 @@ function startAutoScroll(element, id) {
         if (scrollHeight <= clientHeight) return; // No need to scroll
 
         let direction = 'down';
-        const scrollStep = 1; // Pixels to scroll per frame
+        const scrollStep = PIXELS_SCROLL_PER_FRAME; // Pixels to scroll per frame
 
         scrollIntervals[id] = setInterval(() => {
             if (direction === 'down') {
@@ -1400,10 +1437,45 @@ window.addEventListener('keydown', (event) => {
             Object.values(scrollIntervals).forEach(clearInterval);
             scrollIntervals = {};
             matchTimers = {};
+            activeModalMatches = []; // Clear active matches
             clearSelection();
         } else if (confirmModal.style.display === 'flex') {
             confirmModal.style.display = 'none'; // Same as clicking "Cancel"
         }
+    }
+});
+
+window.addEventListener('keydown', (event) => {
+    // Only act if the modal is open and we're not typing in an input
+    const modal = document.getElementById('matchModal');
+    if (modal.style.display !== 'flex' || event.target.tagName.toLowerCase() === 'input' || event.target.isContentEditable) {
+        return;
+    }
+
+    // Don't interfere with the 'Escape' key handler
+    if (event.key === 'Escape') {
+        return;
+    }
+
+    const keyMap = {};
+    if (activeModalMatches.length === 1) {
+        // Single match mode
+        keyMap['1'] = { matchId: activeModalMatches[0], participant: 1 };
+        keyMap['2'] = { matchId: activeModalMatches[0], participant: 2 };
+    } else if (activeModalMatches.length === 2) {
+        // Multi-match mode
+        keyMap['1'] = { matchId: activeModalMatches[0], participant: 1 };
+        keyMap['2'] = { matchId: activeModalMatches[0], participant: 2 };
+        keyMap['3'] = { matchId: activeModalMatches[1], participant: 1 };
+        keyMap['4'] = { matchId: activeModalMatches[1], participant: 2 };
+    }
+
+    const action = keyMap[event.key];
+    if (action) {
+        event.preventDefault();
+        event.stopPropagation();
+        console.log(`Key ${event.key} pressed. Calling completeMatch(${action.matchId}, ${action.participant})`);
+        completeMatch(action.matchId, action.participant);
     }
 });
 

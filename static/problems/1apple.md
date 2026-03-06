@@ -1,6 +1,6 @@
 # Problem 2 - Henry’s Apples (*)
 
-<img src="/static/problems/1apple.png" width="300"/>
+<img src="/static/problems/1apples.jpeg" width="300"/>
 
 Henry Kellett has some boxes. Each box can store some number of apples. Output the total number of apples across all the boxes.
 
@@ -16,18 +16,14 @@ A single number, the total number of apples in all the boxes.
 
 ### Input:
 
-```
-3  
-4  
-8  
-10 
-```
+    3  
+    4  
+    8  
+    10 
 
 ### Output:
 
-```
-22
-```
+    22
 
 ### Explanation:
 
@@ -37,16 +33,12 @@ The first line of the input represents that there are 3 boxes. Thus the answer i
 
 ### Input:
 
-```
-2
-3
-10
-```
+    2
+    3
+    10
 
 ### Output:
 
-```
-13
-```
+    13
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

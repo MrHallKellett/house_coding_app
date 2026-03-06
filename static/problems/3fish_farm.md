@@ -24,28 +24,20 @@ A single integer, the population of fish on the required day.
 
 ### Input:
 
-```
-1
-```
+    1
 
 ### Output:
 
-```
-2
-```
+    2
 
 ## Example 2
 
 ### Input:
 
-```
-8
-```
+    8
 
 ### Output:
 
-```
-55
-```
+    55
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

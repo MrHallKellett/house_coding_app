@@ -1,6 +1,6 @@
 # Problem 3 - Henry’s Even Apples (*)
 
-<img src="/static/problems/1even_apples.png" width="300"/>
+<img src="/static/problems/1even_apples.jpeg" width="300"/>
 
 Henry Kellett wants to know how many of his apple boxes have an even number of apples. Output the number of apple boxes with an even number of apples.
 
@@ -16,19 +16,15 @@ A single number, the number of boxes with an even number of apples.
 
 ### Input:
 
-```
-4
-2
-3
-1
-4
-```
+    4
+    2
+    3
+    1
+    4
 
 ### Output:
 
-```
-2
-```
+    2
 
 ### Explanation:
 
@@ -38,17 +34,13 @@ The first line represents the number of boxes - 4. Then the next four lines repr
 
 ### Input:
 
-```
-3
-1
-3
-5
-```
+    3
+    1
+    3
+    5
 
 ### Output:
 
-```
-0
-```
+    0
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

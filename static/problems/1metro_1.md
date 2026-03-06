@@ -26,32 +26,24 @@ A single integer, the number of stations that Henry goes through.
 
 ### Input:
 
-```
-Henry Home,Johns Home,Lok Ma Chau
-Henry Home
-Lok Ma Chau
-```
+    Henry Home,Johns Home,Lok Ma Chau
+    Henry Home
+    Lok Ma Chau
 
 ### Output:
 
-```
-3
-```
+    3
 
 ## Example 2
 
 ### Input:
 
-```
-A,B,C,D,E
-B
-E
-```
+    A,B,C,D,E
+    B
+    E
 
 ### Output:
 
-```
-4
-```
+    4
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

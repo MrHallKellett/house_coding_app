@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Match View</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        .container { display: flex; gap: 20px; }
+        .match-container { flex: 1; border: 1px solid #ccc; border-radius: 8px; background-color: #fff; padding: 20px; }
+        iframe { width: 100%; height: 80vh; border: none; }
+    </style>
+</head>
+<body>
+    <h1>Multi-Match View</h1>
+    <div class="container">
+        <div class="match-container">
+            <h2>Match {{ match_id1 }} (Keys: 1, 2)</h2>
+            <iframe id="iframe1" src="{{ url_for('match_page', match_id=match_id1) }}"></iframe>
+        </div>
+        <div class="match-container">
+            <h2>Match {{ match_id2 }} (Keys: 3, 4)</h2>
+            <iframe id="iframe2" src="{{ url_for('match_page', match_id=match_id2) }}"></iframe>
+        </div>
+    </div>
+
+    <script>
+        const iframe1 = document.getElementById('iframe1');
+        const iframe2 = document.getElementById('iframe2');
+
+        // Define the key handler function once so we can reuse it.
+        const handleKeyPress = async (event) => {
+             // We don't want to trigger this if the user is typing in an input field or other editable area.
+             if (event.target.tagName.toLowerCase() === 'input' || event.target.isContentEditable) {
+                 return;
+             }
+ 
+             const keyMap = {
+                 '1': { iframe: iframe1, matchId: {{ match_id1 }}, participant: 1 },
+                 '2': { iframe: iframe1, matchId: {{ match_id1 }}, participant: 2 },
+                 '3': { iframe: iframe2, matchId: {{ match_id2 }}, participant: 1 },
+                 '4': { iframe: iframe2, matchId: {{ match_id2 }}, participant: 2 },
+             };
+ 
+             const action = keyMap[event.key];
+             if (action) {
+                // Prevent the default action (like typing '1') and stop the event from
+                // propagating to other listeners (like those from browser extensions).
+                event.preventDefault();
+                event.stopPropagation();
+
+                // Get the window object of the correct iframe
+                const targetWindow = action.iframe.contentWindow;
+
+                // Check if the completeMatch function exists inside the iframe's window
+                if (targetWindow && typeof targetWindow.completeMatch === 'function') {
+                    console.log(`Key ${event.key} pressed. Calling completeMatch(${action.matchId}, ${action.participant}) inside iframe.`);
+                    // Call the function that lives inside the iframe.
+                    // This will handle both the backend call and the UI update.
+                    await targetWindow.completeMatch(action.matchId, action.participant);
+                } else {
+                    console.error('Could not find completeMatch function in the target iframe. It might not have loaded yet.');
+                }
+             }
+        };
+
+        // Attach the listener to the main window.
+        window.addEventListener('keydown', handleKeyPress);
+        
+        // Find our iframes and attach the listener to them after they load.
+        document.querySelectorAll('iframe').forEach(iframe => {
+            iframe.addEventListener('load', () => {
+                iframe.contentWindow.addEventListener('keydown', handleKeyPress);
+            });
+        });
+    </script>
+</body>
+</html>

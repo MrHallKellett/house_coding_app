@@ -30,20 +30,16 @@ Print a single integer: the total number of icebergs in the grid.
 
 ### Input:
 
-```
-5
-S...X
-.X..X
-....X
-X....
-...X.
-```
+    5
+    S...X
+    .X..X
+    ....X
+    X....
+    ...X.
 
 ### Output:
 
-```
-6
-```
+    6
 
 ### Explanation:
 
@@ -53,18 +49,14 @@ There are 6 icebergs (X) in the grid.
 
 ### Input:
 
-```
-3
-S...
-....
-....
-```
+    3
+    S...
+    ....
+    ....
 
 ### Output:
 
-```
-O
-```
+    O
 
 ### Explanation:
 

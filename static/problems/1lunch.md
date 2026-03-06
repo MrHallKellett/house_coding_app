@@ -20,16 +20,12 @@ A single string, Allowed or Not Allowed representing if the crew member is allow
 
 ### Input:
 
-```
-14
-13
-```
+    14
+    13
 
 ### Output:
 
-```
-3
-```
+    3
 
 ### Explanation:
 
@@ -39,16 +35,12 @@ The crew member leaves at 14:13, which is after 12:30, making it allowed.
 
 ### Input:
 
-```
-12
-30
-```
+    12
+    30
 
 ### Output:
 
-```
-Allowed
-```
+    Allowed
 
 ### Explanation:
 
@@ -58,16 +50,12 @@ The crew member leaves at exactly 12:30, which is still allowed.
 
 ### Input:
 
-```
-12
-20
-```
+    12
+    20
 
 ### Output:
 
-```
-Not Allowed
-```
+    Not Allowed
 
 ### Explanation:
 

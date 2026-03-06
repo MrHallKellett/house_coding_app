@@ -24,20 +24,16 @@ A single integer, the number of dishes that can be served.
 
 ### Input:
 
-```
-1
-apple
-3
-1 apple
-2 apple banana
-1 banana
-```
+    1
+    apple
+    3
+    1 apple
+    2 apple banana
+    1 banana
 
 ### Output:
 
-```
-1
-```
+    1
 
 ### Explanation:
 
@@ -53,21 +49,17 @@ Therefore, only the last dish can be served, so the output is 1.
 
 ### Input:
 
-```
-2
-apple banana
-4
-1 banana
-2 banana apple
-1 mango
-2 apple banana
-```
+    2
+    apple banana
+    4
+    1 banana
+    2 banana apple
+    1 mango
+    2 apple banana
 
 ### Output:
 
-```
-1
-```
+    1
 
 ### Explanation:
 
@@ -79,23 +71,19 @@ Therefore, only dish 3 can be served so the output is 1.
 
 ### Input:
 
-```
-2
-kiwi flour
-6
-3 apple banana chicken
-2 banana flour
-3 salt kiwi apple
-4 tomato bread mayo apple
-2 flour yeast
-2 chicken egg
-```
+    2
+    kiwi flour
+    6
+    3 apple banana chicken
+    2 banana flour
+    3 salt kiwi apple
+    4 tomato bread mayo apple
+    2 flour yeast
+    2 chicken egg
 
 ### Output:
 
-```
-3
-```
+    3
 
 ### Explanation:
 

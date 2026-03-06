@@ -24,18 +24,18 @@ If the result is a decimal, round to 2 decimal places.
 
 ### Input:
 
-```
-3
-0 0
-6 0
-3 6
-```
+
+    3
+    0 0
+    6 0
+    3 6
+
 
 ### Output:
 
-```
-3.0 2.0
-```
+
+    3.0 2.0
+
 
 ### Explanation:
 
@@ -49,19 +49,15 @@ The optimal anchor point is at (3.0, 2.0).
 
 ### Input:
 
-```
-4
-2 2
-4 4
-6 6
-8 8
-```
+    4
+    2 2
+    4 4
+    6 6
+    8 8
 
 ### Output:
 
-```
-5.0 5.0
-```
+    5.0 5.0
 
 ### Explanation:
 

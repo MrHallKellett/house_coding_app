@@ -20,16 +20,14 @@ A single positive integer - The number of times the amount of profit decreased.
 
 ### Input:
 
-```
-3
-1 3 2
-```
+    3
+    1
+    3
+    2
 
 ### Output:
 
-```
-1 
-```
+    1 
 
 ### Explanation:
 
@@ -39,16 +37,12 @@ The only time profits decreased is during the second and third years. Therefore 
 
 ### Input:
 
-```
-1
-3
-```
+    1
+    3
 
 ### Output:
 
-```
-0
-```
+    0
 
 ### Explanation:
 
@@ -58,15 +52,18 @@ Since there is only 1 year to compare, profits have never decreased or increased
 
 ### Input:
 
-```
-8
-1 6 3 2 5 7 4 8
-```
+    8
+    1
+    6
+    3
+    2
+    5
+    7
+    4
+    8
 
 ### Output:
 
-```
-3
-```
+    3
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

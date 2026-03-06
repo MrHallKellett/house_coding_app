@@ -4,9 +4,9 @@
 
 Henry Kellett is transporting goods from one place to another. He needs you to help him program a calculator to check how much it’ll cost him to transport it!
 
-Every single piece of luggage cost $40 to transport per day.
+Every single piece of luggage costs $40 to transport per day.
 
-Every crew member cost $10 to feed per day.
+Every crew member costs $10 to feed per day.
 
 ## Input Format
 
@@ -26,17 +26,13 @@ A single integer, the total cost of the trip.
 
 ### Input:
 
-```
-3
-2
-1
-```
+    3
+    2
+    1
 
 ### Output:
 
-```
-120
-```
+    120
 
 ### Explanation:
 
@@ -48,17 +44,13 @@ A single integer, the total cost of the trip.
 
 ### Input:
 
-```
-1
-2
-3
-```
+    1
+    2
+    3
 
 ### Output:
 
-```
-300
-```
+    300
 
 ### Explanation:
 

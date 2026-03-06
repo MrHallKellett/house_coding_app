@@ -29,18 +29,14 @@ Print “Y” if it is possible to go to the end station. Otherwise, print “N�
 
 ### Input:
 
-```
-A
-E
-A B C D E F G
-H I B J K A
-```
+    A
+    E
+    A B C D E F G
+    H I B J K A
 
 ### Output:
 
-```
-Y
-```
+    Y
 
 ### Explanation:
 
@@ -50,18 +46,14 @@ You can start on the first line and go directly to the 5th station.
 
 ### Input:
 
-```
-A
-E
-A B C
-D E F
-```
+    A
+    E
+    A B C
+    D E F
 
 ### Output:
 
-```
-N
-```
+    N
 
 ### Explanation:
 

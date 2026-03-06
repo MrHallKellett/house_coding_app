@@ -24,22 +24,18 @@ If two sailors have the same rank, maintain their original order from the input.
 
 ### Input:
 
-```
-4
-Smith 3
-Jones 1
-Brown 2
-Wilson 4
-```
+    4
+    Smith 3
+    Jones 1
+    Brown 2
+    Wilson 4
 
 ### Output:
 
-```
-Jones
-Brown
-Smith
-Wilson
-```
+    Jones
+    Brown
+    Smith
+    Wilson
 
 ### Explanation:
 
@@ -49,18 +45,16 @@ Sorted by rank: Jones (1), Brown (2), Smith (3), Wilson (4)
 
 ### Input:
 
-```
-3
-Taylor 2
-Davis 3
-Miller 1
-```
+    3
+    Taylor 2
+    Davis 3
+    Miller 1
 
 ### Output:
 
-```
-Miller Taylor Davis
-```
+    Miller
+    Taylor
+    Davis
 
 ### Explanation:
 

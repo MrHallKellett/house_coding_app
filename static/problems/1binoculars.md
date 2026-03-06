@@ -18,28 +18,20 @@ Three characters, representing the contents of the middle of the sea.
 
 ### Input:
 
-```
-🌊🐳🐋🐬🦈🐙🦑
-```
+    🌊🐳🐋🐬🦈🐙🦑
 
 ### Output:
 
-```
-🐋🐬🦈
-```
+    🐋🐬🦈
 
 ## Example 2
 
 ### Input:
 
-```
-🐙🐙🐙🐙🦑🐙🦑🐙🦑🐙🐙🐙🐙
-```
+    🐙🐙🐙🐙🦑🐙🦑🐙🦑🐙🐙🐙🐙
 
 ### Output:
 
-```
-🐙🦑🐙
-```
+    🐙🦑🐙
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

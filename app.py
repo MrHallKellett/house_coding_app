@@ -551,6 +551,13 @@ def create_bracket():
 def match_page(match_id):
     return render_template("match.html", match_id=match_id)
 
+@app.route("/multimatch")
+def multi_match_page():
+    match_id1 = request.args.get('m1', type=int)
+    match_id2 = request.args.get('m2', type=int)
+    if not match_id1 or not match_id2:
+        return "Please provide two match IDs, e.g., /multimatch?m1=1&m2=2", 400
+    return render_template("multimatch.html", match_id1=match_id1, match_id2=match_id2)
 
 @app.route("/api/match/<int:match_id>")
 def get_match(match_id):

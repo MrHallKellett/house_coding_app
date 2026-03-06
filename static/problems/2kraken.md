@@ -22,15 +22,11 @@ A single string, either KRAKEN AHOY or WHERE IS KRAKEN?.
 
 ### Input:
 
-```
-KELLYROWEDAAWAYKINDLYENJOY
-```
+    KELLYROWEDAAWAYKINDLYENJOY
 
 ### Output:
 
-```
-KRAKEN AHOY!
-```
+    KRAKEN AHOY!
 
 ### Explanation:
 
@@ -40,14 +36,10 @@ The 1st, 6th, 11th, 16th, 22nd, 23rd characters of the message form the letters 
 
 ### Input:
 
-```
-O
-```
+    ARGH IT'S A KRAKE.....
 
 ### Output:
 
-```
-WHERE IS KRAKEN?
-```
+    WHERE IS KRAKEN?
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

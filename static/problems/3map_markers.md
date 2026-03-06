@@ -30,19 +30,15 @@ Two integers separated by a space: row col (0-indexed coordinates of the real tr
 
 ### Input:
 
-```
-4 4
-T.T.
-....
-..T.
-T.T.
-```
+    4 4
+    T.T.
+    ....
+    ..T.
+    T.T.
 
 ### Output:
 
-```
-2 2
-```
+    2 2
 
 ### Explanation:
 
@@ -72,18 +68,14 @@ The row with odd count is row 2, and the column with odd count is column 2. The 
 
 ### Input:
 
-```
-3 4
-T..T
-T...
-T..T
-```
+    3 4
+    T..T
+    T...
+    T..T
 
 ### Output:
 
-```
-1 0
-```
+    1 0
 
 ### Explanation:
 

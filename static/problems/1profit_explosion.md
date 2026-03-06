@@ -24,17 +24,13 @@ Your answer will be considered correct if the absolute or relative error is less
 
 ### Input:
 
-```
-100
-3
-10
-```
+    100
+    3
+    10
 
 ### Output:
 
-```
-331.0
-```
+    331.0
 
 ### Explanation:
 
@@ -44,16 +40,12 @@ The amount of money Henry plunders from the three ships are 100, 110, 121, respe
 
 ### Input:
 
-```
-15
-123
-7
-```
+    15
+    123
+    7
 
 ### Output:
 
-```
-881236.1044158589
-```
+    881236.1044158589
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

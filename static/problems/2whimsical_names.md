@@ -1,6 +1,6 @@
 # Problem 4 - Whimsical Names (**)
 
-<img src="/static/problems/2whimsical_names.png" width="300"/>
+<img src="/static/problems/2whimsical_names.jpeg" width="300"/>
 
 Henry Kellett has a friend called Otto. He realizes that Otto’s name is a palindrome! Palindromes are words that look the same when reversed (without counting uppercase or lowercase - for example, oTtO would still be a palindrome.)
 
@@ -19,28 +19,20 @@ A single character, “y” if the word is a palindrome, “n” otherwise.
 
 ### Input:
 
-```
-car
-```
+    arnold
 
 ### Output:
 
-```
-n
-```
+    n
 
 ## Example 2
 
 ### Input:
 
-```
-raCecaR
-```
+    Pop
 
 ### Output:
 
-```
-y
-```
+    y
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.

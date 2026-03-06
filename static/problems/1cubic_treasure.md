@@ -20,16 +20,12 @@ A single positive integer - The total mass of all the cubes in grams.
 
 ### Input:
 
-```
-3 4
-1 2 3 
-```
+    3 4
+    1 2 3 
 
 ### Output:
 
-```
-144
-```
+    144
 
 ### Explanation:
 
@@ -43,15 +39,11 @@ Therefore the total mass is 4 g + 32 g + 108 g = 144 g, making the output 144.
 
 ### Input:
 
-```
-6 8
-4 2 8 11 7 6
-```
+    6 8
+    4 2 8 11 7 6
 
 ### Output:
 
-```
-19792
-```
+    19792
 
 Note: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.
