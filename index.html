@@ -10,8 +10,10 @@
 
 <body>
     <header class="main-header">
-        <h1>House Coding 2026</h1>
+        <h1>Inter-House Coding Tournament</h1>
     </header>
+
+    <div id="countdownDisplay"></div>
 
     <main>
         <div id="createSection" style="display: none;">
@@ -26,30 +28,21 @@
 
         <div id="introSection" style="display: none;">
             <div class="intro-text">
-                <h2>Welcome to Kellett's First Inter-House Coding Tournament!</h2>
+                <h2>Welcome to the Inter-House Coding Tournament!</h2>
                 <p>This is a fast-paced competition where participants go head-to-head to solve programming puzzles.</p>
-                <p>They will be helping <strong>Henry Kellett</strong> overcome the challenges he faces as he sails the high seas.</p>
-                <img src="static/intro.jpeg" width="400"/><br>
                 <h3>How it Works</h3>
                 <ol>
                     <li><strong>The Challenge:</strong> In each match, two participants (or teams) are given the same secret programming problem. These are logic puzzles that require writing a small computer program to solve.</li>
-                    <br>
                     <li><strong>The Race:</strong> When the match starts, a timer begins. Participants race to write a program that correctly solves the puzzle.</li>
-                    <br>
                     <li><strong>The Test:</strong> To win, their program must pass a series of automated tests. This means the program must produce the exact correct output for a given set of inputs, just like in the problem description's examples. The first person to submit a correct solution wins the match and advances to the next round!</li>
                 </ol>
                 <p>Good luck to all participants!</p>
-
-                In the audience and want to have a go? Grab your device and visit: https://bit.ly/housecoding26
-                <br>
-                <br>
-            <img src="static/audiencejoinqr.svg" width="200"/>
             </div>
             <button id="revealBracketBtn" class="start-btn" onclick="revealBracket()">Reveal Bracket</button>
         </div>
 
         <div id="bracket-container" style="display: none;">
-            <button id="autoScrollBtn" class="scroll-btn" onclick="togglePageAutoScroll()">Toggle Scroll</button>
+            <div id="bracket-header"></div>
             <div id="bracket" class="bracket-scroll"></div>
         </div>
 
@@ -57,30 +50,16 @@
 
     <div id="matchModal" class="modal">
         <div class="modal-content">
-            <div id="countdownDisplay"></div>
+            
+        </div>
             
             <span class="close-btn" onclick="closeModal()">&times;</span>
             <h2 id="modalTitle"></h2>
             <div id="modalBody"></div>
-        
-        <div id="participate-from-audience">
-                In the audience and want to have a go? Grab your device and visit: https://bit.ly/housecoding26
-            <img src="static/audiencejoinqr.svg" width="200"/></div>
         </div>
     </div>
 
     <div id="toast-container"></div>
-
-    <!-- Confirmation Modal -->
-    <div id="confirmModal" class="modal">
-        <div class="confirm-modal-content">
-            <p id="confirmMessage"></p>
-            <div class="confirm-buttons">
-                <button id="confirmBtn" class="return-btn confirm-btn-yes">Confirm</button>
-                <button id="cancelBtn" class="return-btn confirm-btn-no">Cancel</button>
-            </div>
-        </div>
-    </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

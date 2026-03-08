@@ -1,6 +1,6 @@
 # Problem 11 - Transport Rush
 
-<img src="/static/problems/1transport_rush.png" width="300"/>
+<img src="/static/problems/1transport_rush.jpg" width="300"/>
 
 Henry Kellett is transporting goods from one place to another. He needs you to help him program a calculator to check how much it’ll cost him to transport it!
 

@@ -1,6 +1,6 @@
 # Problem 15 - Plants (*)
 
-<img src="/static/problems/1plants.png" width="300"/>
+<img src="/static/problems/1plants.jpeg" width="300"/>
 
 Henry is growing some plants to take on his next expedition, he currently has `n` plants growing in his garden. He is worried that after some time the plants he has will grow out of their pots and cause chaos. Henry knows the current size si of each plant, and how much they will grow every day, ri. Henry has planted the plants in pots that can fit a plant of at most size k. If a plant exceeds the size of the pot it’s in, then the pot will break, causing Henry to be severely annoyed.
 
@@ -14,20 +14,16 @@ The next n lines each consists two integers, si and ri - the initial size of pla
 
 ## Output Format
 
-The number of days until at least one plant out grows the size of it’s pot.
+The number of days until at least one plant out grows the size of its pot.
 
 ## Example 1
 
 ### Input:
 
-    3
-    5
-    1
-    2
-    3
-    1
-    1
-    1
+    3 5
+    1 2
+    3 1
+    1 1
 
 ### Output:
 
@@ -51,14 +47,10 @@ Therefore the answer is 2, as no pots are broken after the first two days.
 
 ### Input:
 
-    3
-    5
-    4
-    2
-    3
-    1
-    1
-    1
+    3 5
+    4 2
+    3 1
+    1 1
 
 ### Output:
 
@@ -76,14 +68,10 @@ Therefore the answer is 0, as not even a single day has passed until a pot is br
 
 ### Input:
 
-    3
-    100
-    87
-    1
-    24
-    4
-    1
-    6
+    3 100
+    87 1
+    24 4
+    1 6
 
 ### Output:
 

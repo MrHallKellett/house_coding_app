@@ -1,6 +1,6 @@
 # Problem 19 - Ship Painting (***)
 
-<img src="/static/problems/3ship_painting.png" width="300"/>
+<img src="/static/problems/3ship_painting.jpeg" width="300"/>
 
 Ena is currently drawing Henry’s ship on a canvas. The canvas is a square grid of cells. She draws in a very peculiar way, where she only draws rectangles onto the canvas. She has come up with a list of rectangles she wants to draw onto the canvas, but she wants to know what the final design will look like first.
 
@@ -12,7 +12,7 @@ Please help Ena determine what her drawing will look like after all the rectangl
 
 The first line consists of two integers n, k - the side length of the canvas, and the number of rectangles she wants to draw.
 
-The next k lines each consists of four integers li, ri, ui, di - the boundaries of each rectangle.
+The next k lines each consist of four integers li, ri, ui, di - the boundaries of each rectangle.
 
 ## Output Format
 

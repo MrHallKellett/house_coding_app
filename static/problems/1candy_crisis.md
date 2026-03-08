@@ -1,6 +1,6 @@
 # Problem 28 - Candy Crisis (*)
 
-<img src="/static/problems/1candy_crisis.png" width="300"/>
+<img src="/static/problems/1candy_crisis.jpeg" width="300"/>
 
 On Henry’s ship there is a free candy jar, where his crew are allowed to take candy for free at anytime. However, recently Henry notices that the jar has been running out candy really quickly. Therefore he would like to find the culprit behind this candy shortage. He has recorded the number of candy each crew member has taken over the last week, but doesn’t know which crew member has the highest count.
 

@@ -1,6 +1,7 @@
 
 import os
 import json
+import threading
 import random
 from datetime import datetime, timezone, timedelta
 from flask import Flask, render_template, jsonify, request
@@ -10,6 +11,7 @@ import markdown
 from collections import defaultdict
 
 app = Flask(__name__)
+bracket_lock = threading.Lock()
 
 BRACKET_FILE = "bracket.json"
 
@@ -24,6 +26,8 @@ HKT_TZ = timezone(timedelta(hours=8))
 # -----------------------------
 
 def parse_time(time_str):
+    if not time_str or time_str in ["DNF", "null"]:
+        return float('inf') # Treat DNF or None as an infinitely large time
     h, m, s = time_str.split(":")
     return float(h) * 3600 + float(m) * 60 + float(s)
 
@@ -70,11 +74,26 @@ def assign_problem(round_num, available_problems_by_difficulty):
     Assigns a problem based on the round number and available problems.
     Removes the chosen problem from the available pool to prevent duplicates.
     """
-    difficulty = 1 if round_num == 1 else 2 if round_num == 2 else 3
+    # Difficulty ramps up: 1 for Round 1, 2 for Round 2, and 3 for all subsequent rounds.
+    if round_num == 1:
+        difficulty = 1
+    elif round_num == 2:
+        difficulty = 2
+    else: # Rounds 3, 4, 5, etc., will all use difficulty 3
+        difficulty = 3
 
     if not available_problems_by_difficulty.get(difficulty):
         # This should be caught by the pre-check, but is a safeguard.
         raise ValueError(f"Not enough unique problems for difficulty level {difficulty}.")
+    
+    # Check if the list for the required difficulty is empty
+    if not available_problems_by_difficulty[difficulty]:
+        # This is the crucial check. If we're out of problems for this difficulty, raise an error.
+        # This error will be caught by the pre-flight check in `create_bracket`.
+        raise ValueError(
+            f"Not enough unique problems for difficulty level {difficulty}. "
+            f"Please add more 'level {difficulty}' problems to the /problems directory."
+        )
 
     problem_file = available_problems_by_difficulty[difficulty].pop(0) # Get and remove first problem
     return problem_file, difficulty
@@ -189,7 +208,8 @@ def generate_single_elim(participants_list_of_dicts, available_problems):
         semi_final_matches_indices = [i for i, m in enumerate(matches) if m.get("winner_proceeds_to") == final_match_num]
 
         third_place_match_num = len(matches) + 1
-        problem_file, difficulty = assign_problem(total_rounds, available_problems)
+        # Force 3rd place match to be a 2-star problem
+        problem_file, difficulty = assign_problem(2, available_problems)
 
         matches.append({
             "match_num": third_place_match_num,
@@ -483,6 +503,7 @@ def get_bracket():
 
 @app.route("/api/create_bracket", methods=["POST"])
 def create_bracket():
+    # with bracket_lock: # Lock removed, will be handled in specific modification routes
     data = request.json
     elim_type = data["type"]
 
@@ -527,21 +548,24 @@ def create_bracket():
         return jsonify({
             "error": f"Not enough unique problems available. Required: {num_matches}, Available: {total_available_problems}. Please add more .md files to the /problems directory."
         }), 400
+    
+    try:
+        # Create a mutable copy of problems for assignment, and shuffle them for randomness
+        problems_for_bracket = {
+            diff: random.sample(p_list, len(p_list)) for diff, p_list in available_problems_by_difficulty.items()
+        }
 
-    # Create a mutable copy of problems for assignment, and shuffle them for randomness
-    problems_for_bracket = {
-        diff: random.sample(p_list, len(p_list)) for diff, p_list in available_problems_by_difficulty.items()
-    }
-
-    if elim_type == "double":
-        # A more detailed check would be needed here for DE problem distribution
-        bracket = generate_double_elim(participants_list_of_dicts, problems_for_bracket)
-    elif elim_type == "single" and (n & (n - 1)) == 0 and n != 0: # Power of 2
-        bracket = generate_single_elim(participants_list_of_dicts, problems_for_bracket)
-    elif n in [12, 24]:
-        bracket = generate_hybrid_elim(participants_list_of_dicts, problems_for_bracket)
-    else:
-        return jsonify({"error": f"Unsupported number of participants: {n}. Please use a power of 2, 12, or 24."}), 400
+        if elim_type == "double":
+            bracket = generate_double_elim(participants_list_of_dicts, problems_for_bracket)
+        elif elim_type == "single" and (n & (n - 1)) == 0 and n != 0: # Power of 2
+            bracket = generate_single_elim(participants_list_of_dicts, problems_for_bracket)
+        elif elim_type == "hybrid":
+            bracket = generate_hybrid_elim(participants_list_of_dicts, problems_for_bracket)
+        else:
+            return jsonify({"error": f"Unsupported number of participants: {n}. Please use a power of 2, 12, or 24."}), 400
+    except ValueError as e:
+        # Catch specific errors from problem assignment and return them to the user.
+        return jsonify({"error": str(e)}), 400
 
     save_bracket(bracket)
     return jsonify(bracket)
@@ -580,6 +604,7 @@ def start_multiple_matches():
 
 def start_matches(match_ids):
     """A helper function to start one or more matches atomically."""
+    
     bracket = load_bracket()
     
     start_time_iso = datetime.now(HKT_TZ).isoformat()
@@ -594,133 +619,97 @@ def start_matches(match_ids):
 
 @app.route("/api/complete/<int:match_id>", methods=["POST"])
 def complete_match(match_id):
-
+    """Endpoint for a single match completion, now acts as a wrapper for the batch endpoint."""
     data = request.json
     participant = data["participant"]
-
-    bracket = load_bracket()
-
-    match = next((m for m in bracket if m["match_num"] == match_id), None)
-
-    if not match:
-        return jsonify({"error": "Match not found"}), 404
-
-    if not match["start_time"]:
-        return jsonify({"error": "Match not started"}), 400
-
-    end_time = datetime.now(HKT_TZ)
-    start_time = datetime.fromisoformat(match["start_time"]) # This will be timezone-aware
-
-    elapsed = str(end_time - start_time)
-
-    # Store results for the participant's name (string)
-    if str(participant) == "1":
-        match["participant1_result"] = elapsed
-    else:
-        match["participant2_result"] = elapsed
     
-    # Get the full participant objects for advancing
-    winner_participant_obj = None
-    loser_participant_obj = None
-    t1 = parse_time(match["participant1_result"]) if match["participant1_result"] else float('inf')
-    t2 = parse_time(match["participant2_result"]) if match["participant2_result"] else float('inf')
+    # Call the batch endpoint with a single item
+    return complete_matches([{"matchId": match_id, "participant": participant}])
 
+@app.route("/api/complete_matches", methods=["POST"])
+def complete_multiple_matches():
+    """
+    Endpoint to process a batch of match completions. This is the primary
+    endpoint for completing matches, ensuring atomicity with a lock.
+    """
+    completions = request.json
+    if not isinstance(completions, list):
+        return jsonify({"error": "Invalid payload: expected a list of completions."}), 400
+        
+    return complete_matches(completions)
 
-    # Decide winner automatically if both finished
-    if match["participant1_result"] and match["participant2_result"]:
+def complete_matches(completions):
+    """Helper function to process a list of completions atomically."""
+    
+    bracket = load_bracket()
+    if not bracket:
+        return jsonify({"error": "Bracket not loaded"}), 500
 
-        t1 = parse_time(match["participant1_result"])
-        t2 = parse_time(match["participant2_result"])
+    for completion in completions:
+        match_id = completion["matchId"]
+        participant = completion["participant"]
 
-        winner_participant_obj = (
-            match["participant1"]
-            if t1 < t2
-            else match["participant2"]
-        )
-        loser_participant_obj = (
-            match["participant2"]
-            if t1 < t2
-            else match["participant1"]
-        )
+        match = next((m for m in bracket if m["match_num"] == match_id), None)
 
-        # --- Advance winner (Standard Match) ---
-        if match["winner_proceeds_to"]:
-            next_match = next(
-                m for m in bracket
-                if m["match_num"] == match["winner_proceeds_to"]
-            )
+        if not match: continue # Skip if match not found
+        if not match["start_time"]: continue # Skip if match not started
+        if match[f"participant{participant}_result"]: continue # Skip if already completed
+        
+        # Check for a special DNF signal from the frontend
+        if completion.get("dnf"):
+            match[f"participant{participant}_result"] = "DNF"
+        else:
+            # Standard completion with time calculation
+            end_time = datetime.now(HKT_TZ)
+            start_time = datetime.fromisoformat(match["start_time"])
+            elapsed = str(end_time - start_time)
+            match[f"participant{participant}_result"] = elapsed
+            
+    # --- Post-completion processing (advancing winners) ---
+    # This should run after all times in the batch are recorded.
+    # We iterate through all matches to check for newly completed ones.
+    for match in bracket:
+        # Check if match is complete and has a winner to advance
+        if match.get("participant1_result") and match.get("participant2_result") and match.get("winner_proceeds_to"):
+            
+            # Avoid re-advancing winners
+            next_match = next((m for m in bracket if m["match_num"] == match["winner_proceeds_to"]), None)
+            if not next_match: continue
 
-            # If next match is a 3-way final, populate its sub-matches
-            if next_match.get("match_type") == "three_way_round_robin":
-                # This is complex. We need to find all 3 finalists.
-                semi_final_matches = [m for m in bracket if m.get("winner_proceeds_to") == next_match["match_num"]]
-                finalists = []
-                for sf_match in semi_final_matches:
-                    if sf_match["participant1_result"] and sf_match["participant2_result"]:
-                        sf_t1 = parse_time(sf_match["participant1_result"])
-                        sf_t2 = parse_time(sf_match["participant2_result"])
-                        finalists.append(sf_match["participant1"] if sf_t1 < sf_t2 else sf_match["participant2"])
+            t1 = parse_time(match["participant1_result"])
+            t2 = parse_time(match["participant2_result"])
+            winner_participant_obj = match["participant1"] if t1 < t2 else match["participant2"]
+            loser_participant_obj = match["participant2"] if t1 < t2 else match["participant1"]
 
-                if len(finalists) == 3:
-                    # We have all 3 finalists, populate the round robin
-                    p1, p2, p3 = finalists[0], finalists[1], finalists[2]
-                    sub_match_nums = next_match["sub_matches"]
-                    
-                    sub_match_1 = next(m for m in bracket if m["match_num"] == sub_match_nums[0])
-                    sub_match_1['participant1'] = p1
-                    sub_match_1['participant2'] = p2
+            # --- Logic to advance winner ---
+            # Check if winner is already in the next match to prevent duplicates
+            is_winner_placed = (next_match.get("participant1") and next_match["participant1"]["name"] == winner_participant_obj["name"]) or \
+                               (next_match.get("participant2") and next_match["participant2"]["name"] == winner_participant_obj["name"])
 
-                    sub_match_2 = next(m for m in bracket if m["match_num"] == sub_match_nums[1])
-                    sub_match_2['participant1'] = p2
-                    sub_match_2['participant2'] = p3
-
-                    sub_match_3 = next(m for m in bracket if m["match_num"] == sub_match_nums[2])
-                    sub_match_3['participant1'] = p3
-                    sub_match_3['participant2'] = p1
-
-            # If next match is a standard match
-            else:
-                if not next_match["participant1"]: # Assign the full participant object
+            if not is_winner_placed:
+                if not next_match.get("participant1"):
                     next_match["participant1"] = winner_participant_obj
                 else:
                     next_match["participant2"] = winner_participant_obj
-        
-        # --- Check for 3-way final completion ---
-        parent_3_way_match = next((m for m in bracket if m.get("match_type") == "three_way_round_robin" and match_id in m.get("sub_matches", [])), None)
-        if parent_3_way_match:
-            sub_matches = [m for m in bracket if m["match_num"] in parent_3_way_match["sub_matches"]]
-            if all(m["participant1_result"] and m["participant2_result"] for m in sub_matches):
-                # All sub-matches are complete, find the overall winner
-                wins = {}
-                for sub in sub_matches:
-                    t1 = parse_time(sub["participant1_result"])
-                    t2 = parse_time(sub["participant2_result"])
-                    sub_winner = sub["participant1"] if t1 < t2 else sub["participant2"]
-                    wins[sub_winner] = wins.get(sub_winner, 0) + 1
-                
-                # The winner is the one with 2 wins
-                # This assumes winner_participant_obj is a dict, so we need to store the name
-                overall_winner_name = max(wins, key=wins.get)
-                parent_3_way_match["winner"] = overall_winner_name
 
-        # Advance loser to 3rd place if exists
-        if match.get("loser_proceeds_to"):
-            third_match = next(
-                m for m in bracket
-                if m["match_num"] == match["loser_proceeds_to"]
-            ) # Assign the full participant object
-
-            if not third_match["participant1"]: 
-                third_match["participant1"] = loser_participant_obj
-            else:
-                third_match["participant2"] = loser_participant_obj
-
+            # --- Logic to advance loser ---
+            if match.get("loser_proceeds_to"):
+                third_match = next((m for m in bracket if m["match_num"] == match["loser_proceeds_to"]), None)
+                if third_match:
+                    is_loser_placed = (third_match.get("participant1") and third_match["participant1"]["name"] == loser_participant_obj["name"]) or \
+                                      (third_match.get("participant2") and third_match["participant2"]["name"] == loser_participant_obj["name"])
+                    if not is_loser_placed:
+                        if not third_match.get("participant1"):
+                            third_match["participant1"] = loser_participant_obj
+                        else:
+                            third_match["participant2"] = loser_participant_obj
 
     save_bracket(bracket)
     return jsonify({"success": True})
 
 @app.route("/api/reset/<int:match_id>", methods=["POST"])
 def reset_match(match_id):
+    
     bracket = load_bracket()
     match = next((m for m in bracket if m["match_num"] == match_id), None)
 
@@ -738,6 +727,7 @@ def reset_match(match_id):
 @app.route("/api/delete_bracket", methods=["POST"])
 def delete_bracket():
     """Deletes the bracket.json file."""
+    
     try:
         if os.path.exists(BRACKET_FILE):
             os.remove(BRACKET_FILE)

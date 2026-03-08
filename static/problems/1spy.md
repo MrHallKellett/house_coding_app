@@ -1,6 +1,6 @@
 # Problem 30 - Spy (*)
 
-<img src="/static/problems/1spy.png" width="300"/>
+<img src="/static/problems/1spy.jpeg" width="300"/>
 
 Henry has recently been told that there might be a spy from a rival pirate ship. To find this spy, he has lined up all of his crew for inspection. Luckily, he knows that each crew member has been given a hat of a special colour that the spy does’t have. Therefore, the spy (if any) will be wearing a hat of a different colour.
 

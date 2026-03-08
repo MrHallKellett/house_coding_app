@@ -6,7 +6,7 @@ Henry Kellett’s naval fleet is far away when a number of his sailors contract 
 
 The crew give him a list of fruit orders that he will need to buy from the nearest island shop. Thankfully, the shop stocks 100 oranges, 100 lemons, 50 grapefruit and 50 pomelos every day.
 
-The shop processes each order one-by-one. Each order reduces the number of a specific fruit the shop has in stock. As soon as the shop cannot fulfil an order, they close for the day. (Note that as the naval fleet has severe scurvy, the shop is likely to close before the orders are finished.)
+The shop processes each order one-by-one. Each order reduces the number of a specific fruit the shop has in stock. As soon as the shop cannot fulfil an order, they close for the day. (Note: as his crew are almost all very sick, the shop is likely to close before the orders are finished.)
 
 How many pieces of fruit will be purchased before the shop closes?
 
@@ -14,8 +14,8 @@ How many pieces of fruit will be purchased before the shop closes?
 
 Input format for each order:
 
-<name of a fruit>
-<number of fruit needed>
+    name of a fruit
+    number of fruit needed
 
 ## Output Format
 

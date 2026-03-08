@@ -3,18 +3,48 @@ let matchTimers = {}; // Object to hold multiple timer intervals
 let scrollIntervals = {}; // Object to hold scroll animation intervals
 let activeModalMatches = []; // Holds the match IDs currently in the modal
 
+let bracketData = null; // Global variable to hold bracket data
+
+let completionQueue = [];
+let completionTimer = null;
+
+let isAutoScrolling = false;
+let pageScrollInterval = null;
+let scrollDirection = 'down';
+
 PIXELS_SCROLL_PER_FRAME = .5
 
 async function loadBracket() {
     const res = await fetch("/api/bracket");
     const data = await res.json();
 
-    if (data.error) {
+    // If there's an error (no bracket), show the creation section.
+    if (data.error || !data) {
         document.getElementById("createSection").style.display = "block";
         return;
     }
 
-    renderBracketSVG(data); // This function now acts as a dispatcher
+    // Check for a URL parameter to decide whether to reveal the bracket immediately.
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('reveal') === 'true') {
+        // Store data and reveal bracket directly
+        bracketData = data;
+        revealBracket();
+        return;
+    }
+
+    // Otherwise, if bracket data exists, store it and show the intro section.
+    bracketData = data;
+    document.getElementById("introSection").style.display = "block";
+}
+
+function revealBracket() {
+    if (bracketData) {
+        document.getElementById("introSection").style.display = "none";
+        document.getElementById("bracket-container").style.display = "block";
+        renderBracketSVG(bracketData);
+        return;
+    }
 }
 
 async function createBracket(type) {
@@ -31,7 +61,7 @@ async function createBracket(type) {
         return;
     }
 
-    location.reload();
+    loadBracket(); // Reload the bracket data instead of the whole page
 }
 
 
@@ -41,30 +71,15 @@ async function createBracket(type) {
 function renderBracketSVG(data) { // Renamed 'matches' to 'data' for clarity
 
     const container = document.getElementById("bracket");
-    const headerContainer = document.getElementById("bracket-header");
+    
     container.innerHTML = "";
-    headerContainer.innerHTML = ""; // Clear bracket header
+    
 
     // --- Check if any match has started ---
     const anyMatchStarted = data.some(m => m.start_time);
 
-    // --- Add "Regenerate Bracket" button if no matches have started ---
-    if (!anyMatchStarted) {
-        const mainHeader = document.querySelector('.main-header');
-        const regenerateBtn = document.createElement('button');
-        regenerateBtn.textContent = 'Regenerate Bracket';
-        regenerateBtn.className = 'regenerate-btn';
-        regenerateBtn.onclick = () => {
-            showConfirm("Are you sure you want to delete this bracket and start over?", async () => {
-                await fetch('/api/delete_bracket', { method: 'POST' });
-                location.reload();
-            });
-        };
-        // Prepend to the main header to position it on the left
-        if (mainHeader) {
-            mainHeader.appendChild(regenerateBtn);
-        }
-    }
+
+
 
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("width", "100%");
@@ -380,7 +395,7 @@ function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
     const vertical_offset = is_tall_box ? 18 : 0; // Shift content down by 18px in tall boxes
 
     const row1_y = y + 25 + vertical_offset; // Baseline for first row (Names)
-    const row2_y = y + 48 + vertical_offset; // Baseline for second row (Times)
+    const row2_y = y + 48 + vertical_offset + (is_tall_box ? 15 : 0); // Add extra 15px for tall boxes
     const row3_y = y + height - 13; // Position problem title 13px from the bottom of the box
 
     // Helper to create and append text elements
@@ -838,6 +853,7 @@ function getParticipantNameOnly(participant_obj) {
 
 function getParticipantTimeOnly(result) {
     if (!result) return "";
+    else if (result == "DNF") return "DNF";
     // Format as H:MM:SS
     const parts = result.split(':');
     const h = parts[0];
@@ -987,11 +1003,13 @@ async function openMatchModal(matchId) {
         <div class="participant-actions" style="justify-content: center; align-items: center;">
             <div class="participant-column">
                 <button id="p1CompleteBtn" class="participant-btn" style="background-color:${getHouseColor(p1_house_modal)};" onclick="completeMatch(${matchId}, 1)" disabled>${p1_name_modal}</button>
+                <button id="p1DnfBtn" class="dnf-btn" onclick="dnfParticipant(${matchId}, 1)">DNF</button>
                 <div id="p1Time" class="time-display">${match.participant1_result ? getParticipantTimeOnly(match.participant1_result) : ''}</div>
             </div>
             <span class="vs-separator">vs</span>
             <div class="participant-column">
                 <button id="p2CompleteBtn" class="participant-btn" style="background-color:${getHouseColor(p2_house_modal)};" onclick="completeMatch(${matchId}, 2)" disabled>${p2_name_modal}</button>
+                <button id="p2DnfBtn" class="dnf-btn" onclick="dnfParticipant(${matchId}, 2)">DNF</button>
                 <div id="p2Time" class="time-display">${match.participant2_result ? getParticipantTimeOnly(match.participant2_result) : ''}</div>
             </div>
         </div>
@@ -999,9 +1017,9 @@ async function openMatchModal(matchId) {
 
     modalBody.innerHTML = `
         <div class="match-controls">
-            <button id="startBtn" class="start-btn" onclick="startMatchAnimation(${matchId})" ${match.start_time ? 'disabled' : ''}>Start</button>
+            <button id="startBtn" class="start-btn" onclick="startMatchAnimation(${matchId})">Start</button>
             <span id="startTimeDisplay" style="margin-left: 1rem; font-weight: bold;">${match.start_time ? `Started at: ${new Date(match.start_time).toLocaleTimeString()}` : ''}</span>
-            <button id="returnBtn" class="return-btn" onclick="closeModal()" style="display: none;">Return to Bracket & Refresh</button>
+            <button id="returnBtn" class="return-btn" onclick="closeModal(true)" style="display: none;">Return to Bracket & Refresh</button>
         </div>
         <br>
         <hr>
@@ -1051,6 +1069,12 @@ async function openMatchModal(matchId) {
             const startTime = new Date(match.start_time).getTime();
             const timerDisplay = document.getElementById("startTimeDisplay");
 
+            // Explicitly hide the start button if the match is in progress
+            const startBtn = document.getElementById('startBtn');
+            if (startBtn) {
+                startBtn.style.display = 'none';
+            }
+
         matchTimers[matchId] = setInterval(() => {
                 const elapsed = Date.now() - startTime;
                 const seconds = Math.floor((elapsed / 1000) % 60).toString().padStart(2, '0');
@@ -1058,7 +1082,7 @@ async function openMatchModal(matchId) {
                 const hours = Math.floor(elapsed / (1000 * 60 * 60));
                 timerDisplay.textContent = `Time Elapsed: ${hours}:${minutes}:${seconds}`;
             }, 1000);
-            startAutoScroll(document.getElementById('problemArea'), matchId);
+            startProblemAutoScroll(document.getElementById('problemArea'), matchId);
         } else if (match.participant1_result && match.participant2_result) {
             document.getElementById("startTimeDisplay").textContent = "Match Complete";
         }
@@ -1069,17 +1093,31 @@ async function openMatchModal(matchId) {
             document.getElementById('startTimeDisplay').style.display = 'none';
             document.getElementById('returnBtn').style.display = 'inline-block';
         }
+
+        // Show DNF button if one participant has finished but the other has not
+        if (match.participant1_result && !match.participant2_result) {
+            document.getElementById('p2DnfBtn').style.display = 'inline-block';
+        }
+        if (match.participant2_result && !match.participant1_result) {
+            document.getElementById('p1DnfBtn').style.display = 'inline-block';
+        }
     }
 }
 
-function closeModal() {
+function closeModal(shouldReveal = false) {
     document.getElementById("matchModal").style.display = "none";
     Object.values(matchTimers).forEach(clearInterval);
     Object.values(scrollIntervals).forEach(clearInterval);
     scrollIntervals = {};
     matchTimers = {};
     activeModalMatches = []; // Clear active matches when modal closes
-    location.reload();
+
+    if (shouldReveal) {
+        // Navigate with a query parameter to trigger auto-reveal on the homepage.
+        window.location.href = '/?reveal=true';
+    } else {
+        location.reload();
+    }
     clearSelection();
 }
 
@@ -1138,7 +1176,7 @@ async function startMatch(matchId) { // Renamed from startMatchAnimation
     }
 
     // Start auto-scrolling the problem description
-    startAutoScroll(document.getElementById('problemArea'), matchId);
+    startProblemAutoScroll(document.getElementById('problemArea'), matchId);
 }
 
 async function startMultiMatch(matchIds) {
@@ -1194,7 +1232,7 @@ async function startMultiMatch(matchIds) {
                 });
 
                 // Start auto-scrolling for both problems
-                matchIds.forEach(id => startAutoScroll(document.getElementById(`problemArea-${id}`), id));
+                matchIds.forEach(id => startProblemAutoScroll(document.getElementById(`problemArea-${id}`), id));
 
             }, 1000);
         }
@@ -1204,45 +1242,117 @@ async function startMultiMatch(matchIds) {
 }
 
 async function completeMatch(matchId, participant) {
-    const res = await fetch(`/api/complete/${matchId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ participant })
-    });
+    // --- UI Update (Immediate) ---
+    // Disable the button immediately to prevent double-clicks
+    const completeBtn = document.getElementById(`p${participant}CompleteBtn-${matchId}`) || document.getElementById(`p${participant}CompleteBtn`);
+    if (completeBtn) completeBtn.disabled = true;
 
-    if (!res.ok) {
-        const err = await res.json();
-        showToast(`Error: ${err.error}`, 'error');
-        return;
+    // --- Queueing Logic ---
+    // Add the completion request to the queue
+    completionQueue.push({ matchId, participant });
+
+    // Clear any existing timer to reset the debounce window
+    if (completionTimer) {
+        clearTimeout(completionTimer);
     }
 
-    // Re-fetch match data to get the new times
-    const matchRes = await fetch(`/api/match/${matchId}`);
-    const match = await matchRes.json();
+    // Set a new timer. The batch will be sent after 200ms of inactivity.
+    completionTimer = setTimeout(sendCompletionBatch, 200);
+}
 
-    // Update UI with times
+async function sendCompletionBatch() {
+    if (completionQueue.length === 0) return;
+
+    const batch = [...completionQueue]; // Copy the queue
+    completionQueue = []; // Clear the original queue
+
+    try {
+        const res = await fetch('/api/complete_matches', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(batch)
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'Batch completion failed');
+        }
+
+        // --- UI Update Logic ---
+        // Instead of closing the modal, fetch the updated state of the matches
+        // that were part of the batch and update the UI in place.
+        const updatedMatchIds = [...new Set(batch.map(item => item.matchId))];
+        
+        for (const matchId of updatedMatchIds) {
+            const matchRes = await fetch(`/api/match/${matchId}`);
+            const updatedMatch = await matchRes.json();
+
+            // Update times for both participants in this match
+            updateCompletionUI(matchId, 1, updatedMatch.participant1_result);
+            updateCompletionUI(matchId, 2, updatedMatch.participant2_result);
+
+            // Check if this specific match is now complete
+            if (updatedMatch.participant1_result && updatedMatch.participant2_result) {
+                if (matchTimers[matchId]) clearInterval(matchTimers[matchId]);
+                if (scrollIntervals[matchId]) clearInterval(scrollIntervals[matchId]);
+
+                const timerDisplay = document.getElementById(`timerDisplay-${matchId}`) || document.getElementById("startTimeDisplay");
+                if (timerDisplay) timerDisplay.textContent = "Match Complete";
+            } else {
+                // Match is not fully complete, so check if we need to show a DNF button.
+                // This handles showing the DNF button after one participant finishes.
+                if (updatedMatch.participant1_result && !updatedMatch.participant2_result) {
+                    const dnfBtn = document.getElementById(`p2DnfBtn-${matchId}`) || document.getElementById('p2DnfBtn');
+                    if (dnfBtn) dnfBtn.style.display = 'inline-block';
+                } else if (updatedMatch.participant2_result && !updatedMatch.participant1_result) {
+                    const dnfBtn = document.getElementById(`p1DnfBtn-${matchId}`) || document.getElementById('p1DnfBtn');
+                    if (dnfBtn) dnfBtn.style.display = 'inline-block';
+                }
+            }
+        }
+
+        // After updating all UIs, check if ALL matches in the modal are complete.
+        const allMatchesInModal = await Promise.all(
+            activeModalMatches.map(id => fetch(`/api/match/${id}`).then(res => res.json()))
+        );
+
+        const allDone = allMatchesInModal.every(m => m.participant1_result && m.participant2_result);
+
+        if (allDone) {
+            // If every match is done, hide the start button and show the return button.
+            const startBtn = document.getElementById('startBtn');
+            const returnBtn = document.getElementById('returnBtn');
+            if (startBtn) startBtn.style.display = 'none';
+            if (returnBtn) returnBtn.style.display = 'inline-block';
+        }
+
+    } catch (error) {
+        showToast(`Error: ${error.message}`, 'error');
+        // Re-enable buttons for the failed batch so the user can try again
+        batch.forEach(({ matchId, participant }) => {
+            const btn = document.getElementById(`p${participant}CompleteBtn-${matchId}`) || document.getElementById(`p${participant}CompleteBtn`);
+            if (btn) btn.disabled = false;
+        });
+    }
+}
+
+function dnfParticipant(matchId, participant) {
+    showConfirm("Are you sure you want to mark this participant as DNF?", () => {
+        // Add the DNF action to the queue and send it immediately.
+        // We add a 'dnf: true' flag for the backend to recognize.
+        completionQueue.push({ matchId, participant, dnf: true });
+        
+        // Clear any existing timer and send the batch immediately.
+        if (completionTimer) clearTimeout(completionTimer);
+        
+        sendCompletionBatch();
+    });
+}
+
+function updateCompletionUI(matchId, participant, result) {
     const timeDisplay = document.getElementById(`p${participant}Time-${matchId}`) || document.getElementById(`p${participant}Time`);
-    const completeBtn = document.getElementById(`p${participant}CompleteBtn-${matchId}`) || document.getElementById(`p${participant}CompleteBtn`);
-
-    timeDisplay.textContent = getParticipantTimeOnly(match[`participant${participant}_result`]);
-    completeBtn.disabled = true;
-
-    // If both are done, close the modal and refresh
-    if (match.participant1_result && match.participant2_result) {
-        if (matchTimers[matchId]) clearInterval(matchTimers[matchId]);
-        if (scrollIntervals[matchId]) clearInterval(scrollIntervals[matchId]);
-
-        const singleTimer = document.getElementById("startTimeDisplay");
-        const multiTimer = document.getElementById(`timerDisplay-${matchId}`);
-
-        if (singleTimer) singleTimer.textContent = "Match Complete";
-        if (multiTimer) multiTimer.textContent = "Match Complete";
-
-        // Check if ALL matches in the modal are complete
-        const allDone = selectedMatches.every(id => document.getElementById(`p1Time-${id}`).textContent && document.getElementById(`p2Time-${id}`).textContent);
-
-        document.getElementById('startBtn').style.display = 'none';
-        document.getElementById('returnBtn').style.display = 'inline-block';
+    if (timeDisplay && result) {
+        timeDisplay.textContent = getParticipantTimeOnly(result);
     }
 }
 
@@ -1298,11 +1408,13 @@ function populateMatchColumn(columnElement, match, problemHtml) {
         <div class="participant-actions">
             <div class="participant-column">
                 <button id="p1CompleteBtn-${match.match_num}" class="participant-btn complete-btn-${match.match_num}" style="background-color:${getHouseColor(p1_house)}; font-size: 1.2rem; padding: 0.5rem;" onclick="completeMatch(${match.match_num}, 1)" disabled>${p1_name}</button>
+                <button id="p1DnfBtn-${match.match_num}" class="dnf-btn" onclick="dnfParticipant(${match.match_num}, 1)">DNF</button>
                 <div id="p1Time-${match.match_num}" class="time-display">${match.participant1_result ? getParticipantTimeOnly(match.participant1_result) : ''}</div>
             </div>
             <span class="vs-separator" style="font-size: 1rem;">vs</span>
             <div class="participant-column">
                 <button id="p2CompleteBtn-${match.match_num}" class="participant-btn complete-btn-${match.match_num}" style="background-color:${getHouseColor(p2_house)}; font-size: 1.2rem; padding: 0.5rem;" onclick="completeMatch(${match.match_num}, 2)" disabled>${p2_name}</button>
+                <button id="p2DnfBtn-${match.match_num}" class="dnf-btn" onclick="dnfParticipant(${match.match_num}, 2)">DNF</button>
                 <div id="p2Time-${match.match_num}" class="time-display">${match.participant2_result ? getParticipantTimeOnly(match.participant2_result) : ''}</div>
             </div>
         </div>
@@ -1337,6 +1449,14 @@ function populateMatchColumn(columnElement, match, problemHtml) {
         if (!match.participant1_result || !match.participant2_result) {
             // Timer will be started by the `startMultiMatch` or `openMultiMatchModal` logic
         }
+
+        // Show DNF button if one participant has finished but the other has not
+        if (match.participant1_result && !match.participant2_result) {
+            document.getElementById(`p2DnfBtn-${match.match_num}`).style.display = 'inline-block';
+        }
+        if (match.participant2_result && !match.participant1_result) {
+            document.getElementById(`p1DnfBtn-${match.match_num}`).style.display = 'inline-block';
+        }
     }
 }
 
@@ -1345,12 +1465,12 @@ function populateMatchColumn(columnElement, match, problemHtml) {
  * @param {HTMLElement} element The element to scroll.
  * @param {number|string} id A unique ID to manage the interval.
  */
-function startAutoScroll(element, id) {
+function startProblemAutoScroll(element, id) {
     if (!element) return;
     if (scrollIntervals[id]) clearInterval(scrollIntervals[id]);
 
     // Wait a moment for content to render before checking scroll height
-    setTimeout(() => {
+    setTimeout(() => { //NOSONAR
         const scrollHeight = element.scrollHeight;
         const clientHeight = element.clientHeight;
 
@@ -1445,6 +1565,46 @@ window.addEventListener('keydown', (event) => {
     }
 });
 
+/* -----------------------------------------
+   PAGE AUTO-SCROLL
+------------------------------------------*/
+
+function togglePageAutoScroll() {
+    if (isAutoScrolling) {
+        stopPageAutoScroll();
+    } else {
+        startPageAutoScroll();
+    }
+}
+
+function startPageAutoScroll() {
+    isAutoScrolling = true;
+    const scrollBtn = document.getElementById('autoScrollBtn');
+    if (scrollBtn) scrollBtn.textContent = 'Stop Scrolling';
+
+    pageScrollInterval = setInterval(() => {
+        const scrollAmount = 2; // Adjust for speed
+        if (scrollDirection === 'down') {
+            window.scrollBy(0, scrollAmount);
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 5) { // -5 for buffer
+                scrollDirection = 'up';
+            }
+        } else { // 'up'
+            window.scrollBy(0, -scrollAmount);
+            if (window.scrollY <= 5) { // +5 for buffer
+                scrollDirection = 'down';
+            }
+        }
+    }, 15); // Adjust for smoothness
+}
+
+function stopPageAutoScroll() {
+    isAutoScrolling = false;
+    clearInterval(pageScrollInterval);
+    const scrollBtn = document.getElementById('autoScrollBtn');
+    if (scrollBtn) scrollBtn.textContent = 'Toggle Scroll';
+}
+
 window.addEventListener('keydown', (event) => {
     // Only act if the modal is open and we're not typing in an input
     const modal = document.getElementById('matchModal');
@@ -1453,8 +1613,17 @@ window.addEventListener('keydown', (event) => {
     }
 
     // Don't interfere with the 'Escape' key handler
-    if (event.key === 'Escape') {
+    if (event.key === 'Escape' || event.code === 'Space') {
         return;
+    }
+
+    // If spacebar is pressed outside of a modal, toggle scrolling
+    if (event.code === 'Space' && modal.style.display !== 'flex') {
+        const bracketContainer = document.getElementById('bracket-container');
+        if (bracketContainer && bracketContainer.style.display === 'block') {
+            event.preventDefault();
+            togglePageAutoScroll();
+        }
     }
 
     const keyMap = {};

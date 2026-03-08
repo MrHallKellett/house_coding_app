@@ -2,7 +2,7 @@
 
 <img src="/static/problems/1map_folding.png" width="300"/>
 
-After another successful expedition Henry needs to fold his map back together. His map is a 1 x n tape of cells, and he only knows how to fold the map perfectly in half. Henry doesn’t have a lot of space to place the map, and thus will try to fold the map as many times in half as possible until he can no longer fold it in half anymore.
+After another successful expedition Henry needs to fold his map back together. His map is a long rectangular shape, and he only knows how to fold the map perfectly in half. Henry doesn’t have a lot of space to place the map, and thus will try to fold the map as many times in half as possible until he can no longer fold it in half anymore.
 
 Please help Henry determine the width of the final folded map.
 

@@ -1,6 +1,6 @@
 # Problem 31 - Binoculars (*)
 
-<img src="/static/problems/1binoculars.png" width="300"/>
+<img src="/static/problems/1binoculars.jpeg" width="300"/>
 
 Henry is looking through his binoculars, which can always see exactly three characters at any one time.
 

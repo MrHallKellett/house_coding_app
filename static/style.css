@@ -6,7 +6,7 @@ body {
     margin: 0;
 }
 
-.page-header {
+.main-header {
     position: sticky;
     top: 0;
     background: #f8fafc;
@@ -15,7 +15,7 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.page-header h1 {
+.main-header h1 {
     margin: 0;
 }
 
@@ -61,6 +61,21 @@ body {
     font-weight: bold;
     text-anchor: middle;
 }
+
+/* Modal Overlay */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
 
 svg {
     background: linear-gradient(to right, #f8fafc, #eef2ff);
@@ -109,6 +124,18 @@ svg {
     margin: 0 1rem;
 }
 
+/* Modal Content */
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 95%;
+    max-width: 1000px; /* Increased width */
+    max-height: 95vh; /* Increased height */
+    overflow-y: auto;
+    text-align: center;
+}
+
 /* Styles for the new multi-match modal */
 .multi-match-container {
     display: flex;
@@ -133,6 +160,19 @@ svg {
     height: 1.2rem; /* Reserve space */
 }
 
+.dnf-btn {
+    background-color: #f87171; /* A light red */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 6px;
+    display: none; /* Hidden by default */
+}
+
 .return-btn, .start-btn {
     
     color: white;
@@ -151,6 +191,19 @@ svg {
 
 .start-btn {
     background-color: #3b82f6; /* A nice blue */
+}
+
+.scroll-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #8b5cf6; /* A nice purple */
+    color: white;
+    z-index: 100;
+    padding: 0.8rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 50px; /* Make it pill-shaped */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 .reset-btn {
@@ -189,6 +242,28 @@ button {
     opacity: 0;
     transform: translateX(100%);
     animation: slideIn 0.5s forwards, fadeOut 0.5s 4.5s forwards;
+}
+
+/* Countdown Animation */
+.countdown, #countdownDisplay {
+    font-size: 8rem;
+    font-weight: bold;
+    color: #3b82f6;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1001; /* Ensure it's on top of other modal content */
+      text-shadow:
+    0 0 5px #fff,  /* Inner, tighter glow */
+    0 0 10px #fff,
+    0 0 20px #0073e6, /* Outer, colored glow */
+    0 0 30px #0073e6,
+    0 0 40px #0073e6,
+    0 0 50px #0073e6,
+    0 0 60px #0073e6;
+}
+
 }
 
 .toast.error { background-color: #ef4444; }
@@ -249,4 +324,12 @@ button {
     border-radius: 8px;
     background: #fff;
     scroll-behavior: smooth; /* Makes programmatic scrolling smoother */
+}
+
+#participate-from-audience
+{
+    height: 200px;
+    text-align:center;
+    vertical-align:middle;
+    display:block;
 }

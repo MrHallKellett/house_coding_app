@@ -2,7 +2,7 @@
 
 <img src="/static/problems/1falling_profits.png" width="300"/>
 
-After folding up his map, Henry starts checking how much profit he’s made over that last few years until he realises (to shock horror) that the amount of money he profits from plundering every year sometimes decreases. This is unacceptable for him, so he asks you to count the number of times this has happened.
+After folding up his map, Henry starts checking how much profit he’s made over that last few years until he realises (to his horror) that the amount of money he profits from plundering every year sometimes decreases. This is unacceptable for him, so he asks you to count the number of times this has happened.
 
 Please help Henry count the number of times his yearly profit decreases.
 

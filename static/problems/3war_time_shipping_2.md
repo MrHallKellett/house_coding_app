@@ -1,12 +1,13 @@
 # Problem 22 - Wartime Shipping 2 (***)
 
-<img src="/static/problems/3war_time_shipping_2.png" width="300"/>
+<img src="/static/problems/3war_time_shipping_2.jpg" width="300"/>
 
-As time went on, the admiralty’s encoding method got cracked! Desperately, they searched through their archive for a new method and found the Vigenere Cipher! The keyword will change depending on the day of the week but it will always be a five letter word.
+As time went on, the admiralty’s encoding method got cracked! Desperately, they searched through their archive for a new method and found the Vigenère Cipher! The keyword will change depending on the day of the week but it will always be a five letter word.
 
 Monday: ships
 
 Tuesday: henry
+
 Wednesday: salty
 
 Thursday: bilge
@@ -21,7 +22,9 @@ The first two letters of the encrypted text will be the day.
 
 Decrypt the text!
 
-NOTE: HOW THE VIGENERE CIPHER WORKS
+NOTE: HOW THE Vigenère Cipher WORKS
+
+(contestants have been provided a video)
 
 ## Input Format
 

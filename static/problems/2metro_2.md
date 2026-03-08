@@ -1,6 +1,6 @@
 # Problem 7 - Henry’s Metro 2 (**)
 
-<img src="/static/problems/2metro_2.png" width="300"/>
+<img src="/static/problems/2metro_2.jpeg" width="300"/>
 
 Henry’s Metro system obtained a upgrade. Now, there are 2 lines, which could have intersections.
 

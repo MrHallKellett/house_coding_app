@@ -2,15 +2,17 @@
 
 <img src="/static/problems/2sweets.jpeg" width="300"/>
 
-Henry really likes sweets, so before his next expedition he need to stock up on some more sweets. He is currently at the sweet store trying to buy sweets. Unfortunately he only has d dollars. The shop currently has n sweets on sale, and each sweet costs ai dollars. (Note that the shop only has one of each sweet, so he can not buy the same sweet twice.)
+Henry is currently at the sweet store trying to buy sweets ready for his next expedition. Each sweet the shop sells costs a certain amount - but alas! Henry cannot buy them all as he only has a certain amount of dollars. Henry is a lover of variety so he will not buy any of the same sweet more than once.
 
 Please help Henry determine the maximum number of sweets he can buy with his money.
 
 ## Input Format
 
-The first line consists two integers n and d - the number of sweets and the amount of money Henry has initially.
+First line contains two integer inputs: the number of sweets sold by the shop and the amount of money Henry has to begin with.
 
-The second line consists of n integers a1, a2, a3, ..., an - the costs of each sweet individually.
+The third line contains one integer for every sweet sold (the price of each sweet).
+
+[Values are separated by a single space]
 
 ## Output Format
 

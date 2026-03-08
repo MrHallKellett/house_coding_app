@@ -1,6 +1,6 @@
-# Problem 39 - Cargo Capacity (**)
+# Problem 39 - Cargo Capacity (***)
 
-<img src="/static/problems/2cargo_capacity.png" width="300"/>
+<img src="/static/problems/3cargo_capacity.png" width="300"/>
 
 Captain Kellett needs to load rectangular crates onto his ship's cargo hold floor. The hold has a fixed width and depth, and each crate has its own dimensions when viewed from above. Crates can be rotated 90 degrees if needed.
 

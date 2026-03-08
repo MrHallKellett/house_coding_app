@@ -1,6 +1,6 @@
 # Problem 18 - Math Quiz (**)
 
-<img src="/static/problems/2math_quiz.png" width="300"/>
+<img src="/static/problems/2math_quiz.jpeg" width="300"/>
 
 Dave is currently training to be a quartermaster Henry’s ship. The teacher is currently teaching about addition and multiplication. The teacher has given the students a quiz to check their understanding of basic math. Unfortunately Dave wasn’t listening to what the teacher was talking about (he was too busy thinking about what’s for lunch), which means he doesn’t know how to do the quiz. 
 

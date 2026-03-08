@@ -4,7 +4,7 @@
 
 Captain Kellett needs to find the best place to drop anchor! 
 
-He has surveyed several potential anchoring locations and recorded their coordinates. To find the central position that minimizes the distance to all locations, he needs to calculate the average (mean) position.
+He has surveyed several potential anchoring locations and recorded their coordinates. To find the central position that minimises the distance to all locations, he needs to calculate the average (mean) position.
 
 Given a list of coordinate points, calculate the average x-coordinate and average y-coordinate. This will be the optimal anchor point.
 

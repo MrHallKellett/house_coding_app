@@ -2,7 +2,7 @@
 
 <img src="/static/problems/1metro_1.png" width="300"/>
 
-Henry has decided to go on a trip. Instead of taking his ship, he decided to take the metro.
+Henry has decided to go on a trip. Instead of taking his ship, he decided to take the metro (you do realise it’s meant to be 1841!? 😂)
 
 A line on the metro could look like this:
 

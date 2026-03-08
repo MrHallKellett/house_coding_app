@@ -2,7 +2,7 @@
 
 <img src="/static/problems/1calculator.jpeg" width="300"/>
 
-Henry Kellett’s calculator broke while he was out at sea. He needs help making a new one!
+Henry Kellett’s calculator broke - it’s full of seawater! He needs help making a new one!
 
 ## Input Format
 
