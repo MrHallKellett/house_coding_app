@@ -209,7 +209,7 @@ svg {
 .reset-btn {
     background-color: #ef4444; /* A nice red */
     color: white;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 2em;
     font-size: 0.8rem;
     border: none;
     border-radius: 6px;
@@ -326,10 +326,18 @@ button {
     scroll-behavior: smooth; /* Makes programmatic scrolling smoother */
 }
 
-#participate-from-audience
-{
-    height: 200px;
-    text-align:center;
-    vertical-align:middle;
-    display:block;
+#participate-float {
+    position: fixed;
+    top: 1em;
+    right: 1em;
+    padding: 1em;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    z-index: 101; /* Above the sticky header, below modals */
+    max-width: 250px;
+    text-align: center;
+    border: 1px solid #e2e8f0;
 }
+
+#participate-from-audience { padding-top: 1em; }

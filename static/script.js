@@ -13,6 +13,7 @@ let pageScrollInterval = null;
 let scrollDirection = 'down';
 
 PIXELS_SCROLL_PER_FRAME = .5
+COUNT_DOWN_FROM = 5
 
 async function loadBracket() {
     const res = await fetch("/api/bracket");
@@ -1138,11 +1139,12 @@ async function startMatchAnimation(matchId) {
                 countdownDisplay.innerHTML = ''; // Clear countdown
                 modalControls.style.display = "block"; // Show controls again
                 await startMatch(matchId);
+                startProblemAutoScroll(document.getElementById('problemArea'), matchId);
             }, 1000);
         }
     };
 
-    countdown(3);
+    countdown(COUNT_DOWN_FROM);
 }
 
 async function startMatch(matchId) { // Renamed from startMatchAnimation
@@ -1175,8 +1177,6 @@ async function startMatch(matchId) { // Renamed from startMatchAnimation
         problemBody.style.display = 'block';
     }
 
-    // Start auto-scrolling the problem description
-    startProblemAutoScroll(document.getElementById('problemArea'), matchId);
 }
 
 async function startMultiMatch(matchIds) {
