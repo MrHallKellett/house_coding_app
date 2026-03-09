@@ -24,16 +24,16 @@
         "problem": "1map_folding.md",
         "problem_difficulty": 1,
         "participant1": {
-            "name": "Tristan",
+            "name": "Tristan & Antoine",
             "house": "Y"
         },
         "participant2": {
             "name": "Alvin",
             "house": "M"
         },
-        "participant1_result": null,
-        "participant2_result": null,
-        "start_time": null
+        "participant1_result": "DNF",
+        "participant2_result": "0:02:40.836274",
+        "start_time": "2026-03-09T13:29:20.461481+08:00"
     },
     {
         "match_num": 3,
@@ -51,13 +51,13 @@
         },
         "participant1_result": null,
         "participant2_result": null,
-        "start_time": "2026-03-09T07:46:32.729943+08:00"
+        "start_time": null
     },
     {
         "match_num": 4,
         "winner_proceeds_to": 18,
         "loser_proceeds_to": null,
-        "problem": "1candy_crisis.md",
+        "problem": "1ration_distribution.md",
         "problem_difficulty": 1,
         "participant1": {
             "name": "Adrian",
@@ -85,15 +85,15 @@
             "name": "Milos & Enya",
             "house": "C"
         },
-        "participant1_result": null,
-        "participant2_result": null,
-        "start_time": null
+        "participant1_result": "DNF",
+        "participant2_result": "0:10:16.684801",
+        "start_time": "2026-03-09T13:37:41.217339+08:00"
     },
     {
         "match_num": 6,
         "winner_proceeds_to": 19,
         "loser_proceeds_to": null,
-        "problem": "1falling_profits.md",
+        "problem": "1fishy_dinner.md",
         "problem_difficulty": 1,
         "participant1": {
             "name": "Vidit",
@@ -157,9 +157,9 @@
             "name": "Xavier",
             "house": "C"
         },
-        "participant1_result": null,
-        "participant2_result": null,
-        "start_time": null
+        "participant1_result": "0:08:52.220307",
+        "participant2_result": "0:06:56.226956",
+        "start_time": "2026-03-09T13:37:41.217339+08:00"
     },
     {
         "match_num": 10,
@@ -211,9 +211,9 @@
             "name": "Leanna",
             "house": "B"
         },
-        "participant1_result": null,
-        "participant2_result": null,
-        "start_time": null
+        "participant1_result": "DNF",
+        "participant2_result": "0:07:12.951775",
+        "start_time": "2026-03-09T13:16:20.675225+08:00"
     },
     {
         "match_num": 13,
@@ -265,9 +265,9 @@
             "name": "Carl & Oscar",
             "house": "M"
         },
-        "participant1_result": null,
-        "participant2_result": null,
-        "start_time": null
+        "participant1_result": "DNF",
+        "participant2_result": "0:10:00.908484",
+        "start_time": "2026-03-09T13:00:21.240694+08:00"
     },
     {
         "match_num": 16,
@@ -283,9 +283,9 @@
             "name": "Zayden",
             "house": "M"
         },
-        "participant1_result": null,
-        "participant2_result": null,
-        "start_time": null
+        "participant1_result": "0:05:51.981789",
+        "participant2_result": "DNF",
+        "start_time": "2026-03-09T13:29:20.461481+08:00"
     },
     {
         "match_num": 17,
@@ -293,7 +293,10 @@
         "loser_proceeds_to": null,
         "problem": "2tacking_traversal.md",
         "problem_difficulty": 2,
-        "participant1": null,
+        "participant1": {
+            "name": "Alvin",
+            "house": "M"
+        },
         "participant2": null,
         "participant1_result": null,
         "participant2_result": null,
@@ -318,7 +321,10 @@
         "problem": "2math_quiz.md",
         "problem_difficulty": 2,
         "participant1": null,
-        "participant2": null,
+        "participant2": {
+            "name": "Milos & Enya",
+            "house": "C"
+        },
         "participant1_result": null,
         "participant2_result": null,
         "start_time": null
@@ -341,7 +347,10 @@
         "loser_proceeds_to": null,
         "problem": "2sweets.md",
         "problem_difficulty": 2,
-        "participant1": null,
+        "participant1": {
+            "name": "Xavier",
+            "house": "C"
+        },
         "participant2": null,
         "participant1_result": null,
         "participant2_result": null,
@@ -353,7 +362,10 @@
         "loser_proceeds_to": null,
         "problem": "2signal_flags.md",
         "problem_difficulty": 2,
-        "participant1": null,
+        "participant1": {
+            "name": "Leanna",
+            "house": "B"
+        },
         "participant2": null,
         "participant1_result": null,
         "participant2_result": null,
@@ -377,8 +389,14 @@
         "loser_proceeds_to": null,
         "problem": "2arctic_pathfinding.md",
         "problem_difficulty": 2,
-        "participant1": null,
-        "participant2": null,
+        "participant1": {
+            "name": "Carl & Oscar",
+            "house": "M"
+        },
+        "participant2": {
+            "name": "Hamir",
+            "house": "M"
+        },
         "participant1_result": null,
         "participant2_result": null,
         "start_time": null
@@ -471,7 +489,7 @@
         "match_num": 32,
         "winner_proceeds_to": null,
         "loser_proceeds_to": null,
-        "problem": "2ration_distribution.md",
+        "problem": "2chess_at_sea.md",
         "problem_difficulty": 2,
         "participant1": null,
         "participant2": null,

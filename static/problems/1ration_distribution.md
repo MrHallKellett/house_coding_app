@@ -1,4 +1,4 @@
-# Problem 42 - Ration Distribution (**)
+# Problem 42 - Ration Distribution (*)
 
 <img src="/static/problems/2ration_distribution.png" width="300"/>
 
@@ -7,8 +7,6 @@ Captain Kellett needs to distribute food rations fairly among the crew! The ship
 Your task is to calculate how many ration packs each crew member receives, and how many packs are left over.
 
 ## Input Format
-
-Two integers on a single line separated by a space:
 
 First integer: number of ration packs
 
@@ -26,11 +24,13 @@ Second integer: leftover ration packs
 
 ### Input:
 
-    17 5
+    17
+    5
 
 ### Output:
 
-    3 2
+    3
+    2
 
 ### Explanation:
 
@@ -40,11 +40,13 @@ Second integer: leftover ration packs
 
 ### Input:
 
-    24 6
+    24
+    6
 
 ### Output:
 
-    4 0
+    4
+    0
 
 ### Explanation:
 

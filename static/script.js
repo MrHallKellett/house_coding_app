@@ -1064,6 +1064,12 @@ async function openMatchModal(matchId) {
     if (match.start_time) {
         document.getElementById('p1CompleteBtn').disabled = !!match.participant1_result;
         document.getElementById('p2CompleteBtn').disabled = !!match.participant2_result;
+        if (match.participant1_result) {
+            document.getElementById('p1CompleteBtn').classList.add('is-complete');
+        }
+        if (match.participant2_result) {
+            document.getElementById('p2CompleteBtn').classList.add('is-complete');
+        }
 
         // If match is in progress but not finished, start the timer
         if (!match.participant1_result || !match.participant2_result) {
@@ -1244,8 +1250,14 @@ async function startMultiMatch(matchIds) {
 async function completeMatch(matchId, participant) {
     // --- UI Update (Immediate) ---
     // Disable the button immediately to prevent double-clicks
-    const completeBtn = document.getElementById(`p${participant}CompleteBtn-${matchId}`) || document.getElementById(`p${participant}CompleteBtn`);
-    if (completeBtn) completeBtn.disabled = true;
+    
+
+    const completeBtn = document.getElementById(`p${participant}CompleteBtn-${matchId}`) || document.getElementById(`p${participant}CompleteBtn`);    
+    if (completeBtn) {
+        completeBtn.disabled = true;
+        completeBtn.classList.add('is-complete');
+        triggerConfetti(completeBtn);
+    }
 
     // --- Queueing Logic ---
     // Add the completion request to the queue
@@ -1258,6 +1270,31 @@ async function completeMatch(matchId, participant) {
 
     // Set a new timer. The batch will be sent after 200ms of inactivity.
     completionTimer = setTimeout(sendCompletionBatch, 200);
+}
+
+function triggerConfetti(element) {
+    const confettiContainer = document.createElement('div');
+    confettiContainer.className = 'confetti-container';
+    // Append to the button's parent to overlay the button
+    element.parentNode.style.position = 'relative';
+    element.parentNode.appendChild(confettiContainer);
+
+    const confettiCount = 80;
+    const colors = ['#DAA520', '#FF8C00', '#4682B4', '#228B22', '#e91e63', '#2196f3', '#4caf50', '#ffeb3b'];
+
+    for (let i = 0; i < confettiCount; i++) {
+        const confettiPiece = document.createElement('div');
+        confettiPiece.className = 'confetti-piece';
+        confettiPiece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confettiPiece.style.left = `${Math.random() * 100}%`;
+        confettiPiece.style.animationDelay = `${Math.random() * 1.5}s`;
+        confettiPiece.style.animationDuration = `${2 + Math.random() * 3}s`;
+        confettiContainer.appendChild(confettiPiece);
+    }
+
+    setTimeout(() => {
+        confettiContainer.remove();
+    }, 5000); // Remove after 5 seconds to clean up the DOM
 }
 
 async function sendCompletionBatch() {
@@ -1407,13 +1444,13 @@ function populateMatchColumn(columnElement, match, problemHtml) {
         <h3 style="margin-top:0;">Match #${match.match_num}</h3>
         <div class="participant-actions">
             <div class="participant-column">
-                <button id="p1CompleteBtn-${match.match_num}" class="participant-btn complete-btn-${match.match_num}" style="background-color:${getHouseColor(p1_house)}; font-size: 1.2rem; padding: 0.5rem;" onclick="completeMatch(${match.match_num}, 1)" disabled>${p1_name}</button>
+                <button id="p1CompleteBtn-${match.match_num}" class="participant-btn complete-btn-${match.match_num}" style="background-color:${getHouseColor(p1_house)}; font-size: 1.5rem; padding: 0.5rem;" onclick="completeMatch(${match.match_num}, 1)" disabled>${p1_name}</button>
                 <button id="p1DnfBtn-${match.match_num}" class="dnf-btn" onclick="dnfParticipant(${match.match_num}, 1)">DNF</button>
                 <div id="p1Time-${match.match_num}" class="time-display">${match.participant1_result ? getParticipantTimeOnly(match.participant1_result) : ''}</div>
             </div>
             <span class="vs-separator" style="font-size: 1rem;">vs</span>
             <div class="participant-column">
-                <button id="p2CompleteBtn-${match.match_num}" class="participant-btn complete-btn-${match.match_num}" style="background-color:${getHouseColor(p2_house)}; font-size: 1.2rem; padding: 0.5rem;" onclick="completeMatch(${match.match_num}, 2)" disabled>${p2_name}</button>
+                <button id="p2CompleteBtn-${match.match_num}" class="participant-btn complete-btn-${match.match_num}" style="background-color:${getHouseColor(p2_house)}; font-size: 1.5rem; padding: 0.5rem;" onclick="completeMatch(${match.match_num}, 2)" disabled>${p2_name}</button>
                 <button id="p2DnfBtn-${match.match_num}" class="dnf-btn" onclick="dnfParticipant(${match.match_num}, 2)">DNF</button>
                 <div id="p2Time-${match.match_num}" class="time-display">${match.participant2_result ? getParticipantTimeOnly(match.participant2_result) : ''}</div>
             </div>
@@ -1443,8 +1480,14 @@ function populateMatchColumn(columnElement, match, problemHtml) {
 
     // If match has started, enable buttons
     if (match.start_time) {
-        document.getElementById(`p1CompleteBtn-${match.match_num}`).disabled = !!match.participant1_result;
-        document.getElementById(`p2CompleteBtn-${match.match_num}`).disabled = !!match.participant2_result;
+        const p1Btn = document.getElementById(`p1CompleteBtn-${match.match_num}`);
+        const p2Btn = document.getElementById(`p2CompleteBtn-${match.match_num}`);
+        p1Btn.disabled = !!match.participant1_result;
+        p2Btn.disabled = !!match.participant2_result;
+
+        // Add glow if already complete
+        if (match.participant1_result) p1Btn.classList.add('is-complete');
+        if (match.participant2_result) p2Btn.classList.add('is-complete');
 
         if (!match.participant1_result || !match.participant2_result) {
             // Timer will be started by the `startMultiMatch` or `openMultiMatchModal` logic
