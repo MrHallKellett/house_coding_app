@@ -44,6 +44,22 @@ function revealBracket() {
         document.getElementById("introSection").style.display = "none";
         document.getElementById("bracket-container").style.display = "block";
         renderBracketSVG(bracketData);
+
+        // Add the scroll button dynamically if it doesn't exist
+        if (!document.getElementById('autoScrollBtn')) {
+            const scrollBtn = document.createElement('button');
+            scrollBtn.id = 'autoScrollBtn';
+            scrollBtn.textContent = 'Toggle Scroll';
+            scrollBtn.style.position = 'fixed';
+            scrollBtn.style.bottom = '20px';
+            scrollBtn.style.right = '20px';
+            scrollBtn.style.zIndex = '1000';
+            scrollBtn.style.padding = '10px 15px';
+            scrollBtn.style.cursor = 'pointer';
+            scrollBtn.onclick = togglePageAutoScroll;
+            document.body.appendChild(scrollBtn);
+        }
+
         return;
     }
 }
@@ -1626,7 +1642,7 @@ function startPageAutoScroll() {
     if (scrollBtn) scrollBtn.textContent = 'Stop Scrolling';
 
     pageScrollInterval = setInterval(() => {
-        const scrollAmount = 2; // Adjust for speed
+        const scrollAmount = 1; // Adjust for speed
         if (scrollDirection === 'down') {
             window.scrollBy(0, scrollAmount);
             if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 5) { // -5 for buffer

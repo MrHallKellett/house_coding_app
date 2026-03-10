@@ -2,7 +2,7 @@
 
 <img src="/static/problems/1catch.jpeg" width="300"/>
 
-Henry has caught some new fish! He now wants to find out how long he can feed his crew with the new fish. He knows that there are 39 types of fish in this catch, and that the ith type of fish can be used to cook i meals.
+Henry has caught some new fish! He now wants to find out how long he can feed his crew with the new fish. He knows that there are 39 types of fish in this catch, and that the `n`th type of fish can be used to cook `n` meals.
 
 Please help Henry calculate how many meals that can be cooked with this catch.
 
@@ -10,7 +10,7 @@ Please help Henry calculate how many meals that can be cooked with this catch.
 
 39 lines,
 
-The ith line consists of a single non-negative integer - the number of fish of type i.
+The `n`th line consists of a single non-negative integer - the number of fish of type `n`.
 
 ## Output Format
 
@@ -170,5 +170,5 @@ Henry has caught no fish, so he can’t cook any meals.
 
 ---
 
-**Note**: When taking input, do not print any message. For example, input() or input(““) would be fine, but input(“Number: “) or input(“Something“) might fail the tests.
+**Note**: When taking input, do not print any message. For example, `input()` or `input(““)` would be fine, but `input(“Number: “)` or `input(“Something“)` might fail the tests.
 
