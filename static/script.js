@@ -217,11 +217,20 @@ function renderBracketSVG(data) { // Renamed 'matches' to 'data' for clarity
                 m => m.winner_proceeds_to === match.match_num
             );
 
-            if (children.length !== 2) return;
+            if (children.length !== 2 && children.length !== 4) return; // Allow 2 or 4 children
 
-            const y1 = positions[children[0].match_num].y;
-            const y2 = positions[children[1].match_num].y;
-            const centerY = (y1 + y2) / 2;
+            let centerY;
+            if (children.length === 4) {
+                // For a 4-way final, find the top-most and bottom-most children to center between them.
+                const childYPositions = children.map(c => positions[c.match_num].y).sort((a, b) => a - b);
+                const yTop = childYPositions[0];
+                const yBottom = childYPositions[childYPositions.length - 1];
+                centerY = (yTop + yBottom) / 2;
+            } else { // The standard case with 2 children
+                const y1 = positions[children[0].match_num].y;
+                const y2 = positions[children[1].match_num].y;
+                centerY = (y1 + y2) / 2;
+            }
 
             let width = BOX_WIDTH;
             let height = BOX_HEIGHT;
@@ -354,6 +363,18 @@ function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
 
     const p1_name_display = getParticipantNameOnly(match.participant1);
     const p2_name_display = getParticipantNameOnly(match.participant2);
+    const p3_name_display = getParticipantNameOnly(match.participant3);
+    const p4_name_display = getParticipantNameOnly(match.participant4);
+    const p1_house = getParticipantHouse(match.participant1);
+    const p2_house = getParticipantHouse(match.participant2);
+    const p3_house = getParticipantHouse(match.participant3);
+    const p4_house = getParticipantHouse(match.participant4);
+
+    const p3_color = getHouseColor(p3_house);
+    const p4_color = getHouseColor(p4_house);
+
+    // Check if this is the 4-way final
+    const isFourWayFinal = !!match.is_final && ('participant3' in match || 'participant4' in match);
 
     // --- Dynamic Height Calculation ---
     // Check if either name is long and will be split into two lines.
@@ -395,8 +416,9 @@ function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
 
     const p1_time_display = getParticipantTimeOnly(match.participant1_result);
     const p2_time_display = getParticipantTimeOnly(match.participant2_result);
-    const p1_house = getParticipantHouse(match.participant1);
-    const p2_house = getParticipantHouse(match.participant2);
+
+
+
     const p1_color = getHouseColor(p1_house);
     const p2_color = getHouseColor(p2_house);
     const problem_text = formatProblemName(match.problem);
@@ -446,45 +468,67 @@ function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
         group.appendChild(bg_rect);
     };
     
-    // Row 1: Names
-    if (p1_house !== 'N/A') { // Participant 1
-        addNameBg(col1_x, row1_y, p1_color, p1_is_long);
-    }
-    if (p1_is_long) {
-        let parts;
-        if (p1_name_display.includes(' & ')) {
-            // Split on " & " to handle names like "Betty & David"
-            parts = p1_name_display.split(' & ');
-        } else {
-            // Fallback for old format or just long names without '&'
-            parts = p1_name_display.split('_&_');
-        }
-        addText(parts[0].trim(), col1_x, row1_y - 24, "12", "bold", "white");
-        addText("&", col1_x, row1_y - 10, "12", "bold", "white");
-        addText((parts[1] || '').trim(), col1_x, row1_y + 4, "12", "bold", "white");
-    } else {
-        addText(p1_name_display, col1_x, row1_y, "14", "bold", p1_house !== 'N/A' ? "white" : "#111");
-    }
+    if (isFourWayFinal) {
+        // Special 2x2 layout for the 4-way final
+        const final_col1_x = x + width * 0.25;
+        const final_col2_x = x + width * 0.75;
+        const final_row1_y = y + height * 0.3;
+        const final_row2_y = y + height * 0.7;
 
-    addText("v", col2_x, row1_y, "12", "normal", "#6b7280");
+        // Participant 1 (Top-Left)
+        if (p1_house !== 'N/A') addNameBg(final_col1_x, final_row1_y, p1_color);
+        addText(p1_name_display, final_col1_x, final_row1_y, "14", "bold", p1_house !== 'N/A' ? "white" : "#111");
 
-    if (p2_house !== 'N/A') { // Participant 2
-        addNameBg(col3_x, row1_y, p2_color, p2_is_long);
-    }
-    if (p2_is_long) {
-        let parts;
-        if (p2_name_display.includes(' & ')) {
-            // Split on " & " to handle names like "Betty & David"
-            parts = p2_name_display.split(' & ');
-        } else {
-            // Fallback for old format or just long names without '&'
-            parts = p2_name_display.split('_&_');
-        }
-        addText(parts[0].trim(), col3_x, row1_y - 24, "12", "bold", "white");
-        addText("&", col3_x, row1_y - 10, "12", "bold", "white");
-        addText((parts[1] || '').trim(), col3_x, row1_y + 4, "12", "bold", "white");
+        // Participant 2 (Top-Right)
+        if (p2_house !== 'N/A') addNameBg(final_col2_x, final_row1_y, p2_color);
+        addText(p2_name_display, final_col2_x, final_row1_y, "14", "bold", p2_house !== 'N/A' ? "white" : "#111");
+
+        // Participant 3 (Bottom-Left)
+        if (p3_house !== 'N/A') addNameBg(final_col1_x, final_row2_y, p3_color);
+        addText(p3_name_display, final_col1_x, final_row2_y, "14", "bold", p3_house !== 'N/A' ? "white" : "#111");
+
+        // Participant 4 (Bottom-Right)
+        if (p4_house !== 'N/A') addNameBg(final_col2_x, final_row2_y, p4_color);
+        addText(p4_name_display, final_col2_x, final_row2_y, "14", "bold", p4_house !== 'N/A' ? "white" : "#111");
     } else {
-        addText(p2_name_display, col3_x, row1_y, "14", "bold", p2_house !== 'N/A' ? "white" : "#111");
+        // Row 1: Names (Standard 2-participant layout)
+        if (p1_house !== 'N/A') { // Participant 1
+            addNameBg(col1_x, row1_y, p1_color, p1_is_long);
+        }
+        if (p1_is_long) {
+            let parts;
+            if (p1_name_display.includes(' & ')) {
+                // Split on " & " to handle names like "Betty & David"
+                parts = p1_name_display.split(' & ');
+            } else {
+                // Fallback for old format or just long names without '&'
+                parts = p1_name_display.split('_&_');
+            }
+            addText(parts[0].trim(), col1_x, row1_y - 24, "12", "bold", "white");
+            addText("&", col1_x, row1_y - 10, "12", "bold", "white");
+            addText((parts[1] || '').trim(), col1_x, row1_y + 4, "12", "bold", "white");
+        } else {
+            addText(p1_name_display, col1_x, row1_y, "14", "bold", p1_house !== 'N/A' ? "white" : "#111");
+        }
+
+        addText("v", col2_x, row1_y, "12", "normal", "#6b7280");
+
+        if (p2_house !== 'N/A') { // Participant 2
+            addNameBg(col3_x, row1_y, p2_color, p2_is_long);
+        }
+        if (p2_is_long) {
+            let parts;
+            if (p2_name_display.includes(' & ')) {
+                parts = p2_name_display.split(' & ');
+            } else {
+                parts = p2_name_display.split('_&_');
+            }
+            addText(parts[0].trim(), col3_x, row1_y - 24, "12", "bold", "white");
+            addText("&", col3_x, row1_y - 10, "12", "bold", "white");
+            addText((parts[1] || '').trim(), col3_x, row1_y + 4, "12", "bold", "white");
+        } else {
+            addText(p2_name_display, col3_x, row1_y, "14", "bold", p2_house !== 'N/A' ? "white" : "#111");
+        }
     }
 
     // Row 2: Times
@@ -1031,28 +1075,63 @@ async function openMatchModal(matchId) {
     const modalTitle = document.getElementById("modalTitle");
     const modalBody = document.getElementById("modalBody");
 
-    const p1_name_modal = typeof match.participant1 === 'object' ? match.participant1.name : match.participant1;
-    const p2_name_modal = typeof match.participant2 === 'object' ? match.participant2.name : match.participant2;    
-    const p1_house_modal = typeof match.participant1 === 'object' ? match.participant1.house : 'N/A';
-    const p2_house_modal = typeof match.participant2 === 'object' ? match.participant2.house : 'N/A';
-    const p1_house_class = getHouseClassName(p1_house_modal);
-    const p2_house_class = getHouseClassName(p2_house_modal);
+    const isFourWayFinal = !!match.is_final;
 
-    modalTitle.innerHTML = `
-        <div class="participant-actions" style="justify-content: center; align-items: center;">
-            <div class="participant-column">
-                <button id="p1CompleteBtn" class="participant-btn ${p1_house_class}" style="background-color:${getHouseColor(p1_house_modal)};" onclick="completeMatch(${matchId}, 1)" disabled>${p1_name_modal}</button>
-                <button id="p1DnfBtn" class="dnf-btn" onclick="dnfParticipant(${matchId}, 1)">DNF</button>
-                <div id="p1Time" class="time-display">${match.participant1_result ? getParticipantTimeOnly(match.participant1_result) : ''}</div>
+    if (isFourWayFinal) {
+        // --- 4-Participant Final Layout ---
+        const participants = [1, 2, 3, 4].map(i => {
+            const p_obj = match[`participant${i}`];
+            return {
+                name: p_obj ? (typeof p_obj === 'object' ? p_obj.name : p_obj) : 'TBD',
+                house: p_obj ? (typeof p_obj === 'object' ? p_obj.house : 'N/A') : 'N/A',
+                result: match[`participant${i}_result`] || null
+            };
+        });
+
+        modalTitle.innerHTML = `<div class="participant-actions-grid"></div>`;
+        const grid = modalTitle.querySelector('.participant-actions-grid');
+
+        participants.forEach((p, index) => {
+            const i = index + 1;
+            const house_class = getHouseClassName(p.house);
+            const house_color = getHouseColor(p.house);
+            const time_display = p.result ? getParticipantTimeOnly(p.result) : '';
+
+            const col = document.createElement('div');
+            col.className = 'participant-column';
+            col.innerHTML = `
+                <button id="p${i}CompleteBtn" class="participant-btn ${house_class}" style="background-color:${house_color};" onclick="completeMatch(${matchId}, ${i})" disabled>${p.name}</button>
+                <button id="p${i}DnfBtn" class="dnf-btn" onclick="dnfParticipant(${matchId}, ${i})">DNF</button>
+                <div id="p${i}Time" class="time-display">${time_display}</div>
+            `;
+            grid.appendChild(col);
+        });
+
+    } else {
+        // --- Standard 2-Participant Layout ---
+        const p1_name_modal = typeof match.participant1 === 'object' ? match.participant1.name : match.participant1;
+        const p2_name_modal = typeof match.participant2 === 'object' ? match.participant2.name : match.participant2;
+        const p1_house_modal = typeof match.participant1 === 'object' ? match.participant1.house : 'N/A';
+        const p2_house_modal = typeof match.participant2 === 'object' ? match.participant2.house : 'N/A';
+        const p1_house_class = getHouseClassName(p1_house_modal);
+        const p2_house_class = getHouseClassName(p2_house_modal);
+
+        modalTitle.innerHTML = `
+            <div class="participant-actions" style="justify-content: center; align-items: center;">
+                <div class="participant-column">
+                    <button id="p1CompleteBtn" class="participant-btn ${p1_house_class}" style="background-color:${getHouseColor(p1_house_modal)};" onclick="completeMatch(${matchId}, 1)" disabled>${p1_name_modal}</button>
+                    <button id="p1DnfBtn" class="dnf-btn" onclick="dnfParticipant(${matchId}, 1)">DNF</button>
+                    <div id="p1Time" class="time-display">${match.participant1_result ? getParticipantTimeOnly(match.participant1_result) : ''}</div>
+                </div>
+                <span class="vs-separator">vs</span>
+                <div class="participant-column">
+                    <button id="p2CompleteBtn" class="participant-btn ${p2_house_class}" style="background-color:${getHouseColor(p2_house_modal)};" onclick="completeMatch(${matchId}, 2)" disabled>${p2_name_modal}</button>
+                    <button id="p2DnfBtn" class="dnf-btn" onclick="dnfParticipant(${matchId}, 2)">DNF</button>
+                    <div id="p2Time" class="time-display">${match.participant2_result ? getParticipantTimeOnly(match.participant2_result) : ''}</div>
+                </div>
             </div>
-            <span class="vs-separator">vs</span>
-            <div class="participant-column">
-                <button id="p2CompleteBtn" class="participant-btn ${p2_house_class}" style="background-color:${getHouseColor(p2_house_modal)};" onclick="completeMatch(${matchId}, 2)" disabled>${p2_name_modal}</button>
-                <button id="p2DnfBtn" class="dnf-btn" onclick="dnfParticipant(${matchId}, 2)">DNF</button>
-                <div id="p2Time" class="time-display">${match.participant2_result ? getParticipantTimeOnly(match.participant2_result) : ''}</div>
-            </div>
-        </div>
-    `;
+        `;
+    }
 
     modalBody.innerHTML = `
         <div class="match-controls">
@@ -1100,13 +1179,14 @@ async function openMatchModal(matchId) {
 
     // If match has already started, enable the completion buttons
     if (match.start_time) {
-        document.getElementById('p1CompleteBtn').disabled = !!match.participant1_result;
-        document.getElementById('p2CompleteBtn').disabled = !!match.participant2_result;
-        if (match.participant1_result) {
-            document.getElementById('p1CompleteBtn').classList.add('is-complete');
-        }
-        if (match.participant2_result) {
-            document.getElementById('p2CompleteBtn').classList.add('is-complete');
+        const numParticipants = isFourWayFinal ? 4 : 2;
+        for (let i = 1; i <= numParticipants; i++) {
+            const btn = document.getElementById(`p${i}CompleteBtn`);
+            const result = match[`participant${i}_result`];
+            if (btn) {
+                btn.disabled = !!result;
+                if (result) btn.classList.add('is-complete');
+            }
         }
 
         // If match is in progress but not finished, start the timer
@@ -1128,23 +1208,29 @@ async function openMatchModal(matchId) {
                 timerDisplay.textContent = `Time Elapsed: ${hours}:${minutes}:${seconds}`;
             }, 1000);
             startProblemAutoScroll(document.getElementById('problemArea'), matchId);
-        } else if (match.participant1_result && match.participant2_result) {
+        } else { // All participants have a result
             document.getElementById("startTimeDisplay").textContent = "Match Complete";
         }
 
+        const allParticipantsFinished = (isFourWayFinal && match.participant1_result && match.participant2_result && match.participant3_result && match.participant4_result) ||
+                                      (!isFourWayFinal && match.participant1_result && match.participant2_result);
+
         // If match is fully complete, show the return button
-        if (match.participant1_result && match.participant2_result) {
+        if (allParticipantsFinished) {
             document.getElementById('startBtn').style.display = 'none';
             document.getElementById('startTimeDisplay').style.display = 'none';
             document.getElementById('returnBtn').style.display = 'inline-block';
         }
 
-        // Show DNF button if one participant has finished but the other has not
-        if (match.participant1_result && !match.participant2_result) {
-            document.getElementById('p2DnfBtn').style.display = 'inline-block';
-        }
-        if (match.participant2_result && !match.participant1_result) {
-            document.getElementById('p1DnfBtn').style.display = 'inline-block';
+        // Show DNF buttons for participants who haven't finished if at least one has.
+        const anyFinished = [1, 2, 3, 4].some(i => match[`participant${i}_result`]);
+        if (anyFinished && !allParticipantsFinished) {
+            for (let i = 1; i <= (isFourWayFinal ? 4 : 2); i++) {
+                if (!match[`participant${i}_result`]) {
+                    const dnfBtn = document.getElementById(`p${i}DnfBtn`);
+                    if (dnfBtn) dnfBtn.style.display = 'inline-block';
+                }
+            }
         }
     }
 }
@@ -1168,10 +1254,16 @@ function closeModal(shouldReveal = false) {
 
 async function startMatchAnimation(matchId) {
     const startBtn = document.getElementById("startBtn");
+    const modal = document.getElementById("matchModal");
+    const modalBody = document.getElementById("modalBody"); // The div containing buttons, etc.
+
     startBtn.style.display = 'none'; // Correctly hide the start button
-    const countdownDisplay = document.getElementById("countdownDisplay");
-    const modalControls = document.getElementById("modalBody"); // The div containing buttons, etc.
-    modalControls.style.display = "none"; // Hide controls during countdown
+    modalBody.style.display = "none"; // Hide controls during countdown
+
+    // Create countdown element dynamically
+    const countdownDisplay = document.createElement('div');
+    countdownDisplay.id = 'countdownDisplay';
+    modal.appendChild(countdownDisplay);
 
     const countdown = (num) => {
         if (num > 0) {
@@ -1180,8 +1272,8 @@ async function startMatchAnimation(matchId) {
         } else {
             countdownDisplay.innerHTML = `<div class="countdown">CODE!</div>`;
             setTimeout(async () => {
-                countdownDisplay.innerHTML = ''; // Clear countdown
-                modalControls.style.display = "block"; // Show controls again
+                countdownDisplay.remove(); // Remove the element
+                modalBody.style.display = "block"; // Show controls again
                 await startMatch(matchId);
                 startProblemAutoScroll(document.getElementById('problemArea'), matchId);
             }, 1000);
@@ -1211,8 +1303,11 @@ async function startMatch(matchId) { // Renamed from startMatchAnimation
     }, 1000);
 
     // Enable participant buttons
-    document.getElementById("p1CompleteBtn").disabled = false;
-    document.getElementById("p2CompleteBtn").disabled = false;
+    const numParticipants = document.querySelectorAll('.participant-btn').length > 2 ? 4 : 2;
+    for (let i = 1; i <= numParticipants; i++) {
+        const btn = document.getElementById(`p${i}CompleteBtn`);
+        if (btn) btn.disabled = false;
+    }
     document.getElementById("startBtn").style.display = 'none';
 
     // Reveal the full problem description
@@ -1226,11 +1321,16 @@ async function startMatch(matchId) { // Renamed from startMatchAnimation
 async function startMultiMatch(matchIds) {
     // Use an animation for the countdown
     const startBtn = document.getElementById("startBtn");
-    startBtn.style.display = 'none';
-    const countdownDisplay = document.getElementById("countdownDisplay");
+    const modal = document.getElementById("matchModal");
     const modalBody = document.getElementById("modalBody");
-    const originalBodyContent = modalBody.innerHTML; // Save state
+
+    startBtn.style.display = 'none';
     modalBody.style.display = "none";
+
+    // Create countdown element dynamically
+    const countdownDisplay = document.createElement('div');
+    countdownDisplay.id = 'countdownDisplay';
+    modal.appendChild(countdownDisplay);
 
     const countdown = (num) => {
         if (num > 0) {
@@ -1239,7 +1339,7 @@ async function startMultiMatch(matchIds) {
         } else {
             countdownDisplay.innerHTML = `<div class="countdown">CODE!</div>`;
             setTimeout(async () => {
-                countdownDisplay.innerHTML = ''; // Clear countdown
+                countdownDisplay.remove(); // Remove the element
                 modalBody.style.display = "block"; // Show controls again
 
                 // Start both matches on the backend
@@ -1397,41 +1497,43 @@ async function sendCompletionBatch() {
             const matchRes = await fetch(`/api/match/${matchId}`);
             const updatedMatch = await matchRes.json();
 
-            // Update times for both participants in this match
-            const p1_result_before = getParticipantTimeOnly(document.getElementById(`p1Time-${matchId}`)?.textContent || document.getElementById('p1Time')?.textContent);
-            const p2_result_before = getParticipantTimeOnly(document.getElementById(`p2Time-${matchId}`)?.textContent || document.getElementById('p2Time')?.textContent);
+            const isFourWayFinal = !!updatedMatch.is_final;
+            const numParticipants = isFourWayFinal ? 4 : 2;
 
-            // --- Check for Winner Animation ---
-            // If no one had finished before, and now someone has, they are the winner.
-            if (!p1_result_before && !p2_result_before) {
-                if (updatedMatch.participant1_result && updatedMatch.participant1_result !== "DNF") {
-                    const winner = updatedMatch.participant1;
-                    const houseColor = getHouseColor(winner.house);
-                    showWinnerAnimation(winner.name, winner.house, houseColor);
-                } else if (updatedMatch.participant2_result && updatedMatch.participant2_result !== "DNF") {
-                    const winner = updatedMatch.participant2;
-                    const houseColor = getHouseColor(winner.house);
-                    showWinnerAnimation(winner.name, winner.house, houseColor);
-                }
-            } else if ((p1_result_before && !p2_result_before) || (!p1_result_before && p2_result_before)) {
-                // --- Check for Second Finisher Animation ---
-                // This means one person had finished, and we're processing the second.
-                if (!p1_result_before && updatedMatch.participant1_result && updatedMatch.participant1_result !== "DNF") {
-                    const finisher = updatedMatch.participant1;
-                    const houseColor = getHouseColor(finisher.house);
-                    showFinisherAnimation(finisher.name, finisher.house, houseColor);
-                } else if (!p2_result_before && updatedMatch.participant2_result && updatedMatch.participant2_result !== "DNF") {
-                    const finisher = updatedMatch.participant2;
-                    const houseColor = getHouseColor(finisher.house);
-                    showFinisherAnimation(finisher.name, finisher.house, houseColor);
+            // Get the state of all participants *before* the update
+            const results_before = [];
+            for (let i = 1; i <= numParticipants; i++) {
+                const timeEl = document.getElementById(`p${i}Time-${matchId}`) || document.getElementById(`p${i}Time`);
+                results_before.push(timeEl ? getParticipantTimeOnly(timeEl.textContent) : '');
+            }
+            const finishers_before_count = results_before.filter(r => r && r !== 'DNF').length;
+
+            // --- Check for Winner/Finisher Animations ---
+            for (let i = 1; i <= numParticipants; i++) {
+                const result_before = results_before[i - 1];
+                const result_after = updatedMatch[`participant${i}_result`];
+
+                // If this participant just finished (had no result before, but has one now)
+                if (!result_before && result_after && result_after !== "DNF") {
+                    const participant = updatedMatch[`participant${i}`];
+                    const houseColor = getHouseColor(participant.house);
+
+                    if (finishers_before_count === 0) { // This is the first finisher (the winner)
+                        showWinnerAnimation(participant.name, participant.house, houseColor);
+                    } else { // This is a subsequent finisher
+                        showFinisherAnimation(participant.name, participant.house, houseColor);
+                    }
                 }
             }
 
-            updateCompletionUI(matchId, 1, updatedMatch.participant1_result);
-            updateCompletionUI(matchId, 2, updatedMatch.participant2_result);
+            // Update UI for all participants
+            for (let i = 1; i <= numParticipants; i++) {
+                updateCompletionUI(matchId, i, updatedMatch[`participant${i}_result`]);
+            }
 
             // Check if this specific match is now complete
-            if (updatedMatch.participant1_result && updatedMatch.participant2_result) {
+            const allFinished = results_before.every((r, i) => updatedMatch[`participant${i+1}_result`]);
+            if (allFinished) {
                 if (matchTimers[matchId]) clearInterval(matchTimers[matchId]);
                 if (scrollIntervals[matchId]) clearInterval(scrollIntervals[matchId]);
 
@@ -1439,13 +1541,12 @@ async function sendCompletionBatch() {
                 if (timerDisplay) timerDisplay.textContent = "Match Complete";
             } else {
                 // Match is not fully complete, so check if we need to show a DNF button.
-                // This handles showing the DNF button after one participant finishes.
-                if (updatedMatch.participant1_result && !updatedMatch.participant2_result) {
-                    const dnfBtn = document.getElementById(`p2DnfBtn-${matchId}`) || document.getElementById('p2DnfBtn');
-                    if (dnfBtn) dnfBtn.style.display = 'inline-block';
-                } else if (updatedMatch.participant2_result && !updatedMatch.participant1_result) {
-                    const dnfBtn = document.getElementById(`p1DnfBtn-${matchId}`) || document.getElementById('p1DnfBtn');
-                    if (dnfBtn) dnfBtn.style.display = 'inline-block';
+                const anyFinished = Object.values(updatedMatch).some(val => typeof val === 'string' && val.includes(':')); // A simple check for a time string
+                if (anyFinished) {
+                    for (let i = 1; i <= numParticipants; i++) {
+                        const dnfBtn = document.getElementById(`p${i}DnfBtn-${matchId}`) || document.getElementById(`p${i}DnfBtn`);
+                        if (dnfBtn && !updatedMatch[`participant${i}_result`]) dnfBtn.style.display = 'inline-block';
+                    }
                 }
             }
         }
@@ -1455,7 +1556,10 @@ async function sendCompletionBatch() {
             activeModalMatches.map(id => fetch(`/api/match/${id}`).then(res => res.json()))
         );
 
-        const allDone = allMatchesInModal.every(m => m.participant1_result && m.participant2_result);
+        const allDone = allMatchesInModal.every(m => {
+            const numPs = m.is_final ? 4 : 2;
+            return Array.from({length: numPs}, (_, i) => m[`participant${i+1}_result`]).every(Boolean);
+        });
 
         if (allDone) {
             // If every match is done, hide the start button and show the return button.
@@ -1517,13 +1621,14 @@ async function resetMatch(matchId) {
 
         // --- Update UI to reflect reset state ---
         // This needs to work for both single and multi-modals
-        const p1Time = document.getElementById(`p1Time-${matchId}`) || document.getElementById('p1Time');
-        const p2Time = document.getElementById(`p2Time-${matchId}`) || document.getElementById('p2Time');
-        if (p1Time) p1Time.textContent = '';
-        if (p2Time) p2Time.textContent = '';
+        for (let i = 1; i <= 4; i++) {
+            const timeEl = document.getElementById(`p${i}Time-${matchId}`) || document.getElementById(`p${i}Time`);
+            if (timeEl) timeEl.textContent = '';
+        }
 
-        document.querySelectorAll(`.complete-btn-${matchId}`).forEach(btn => btn.disabled = true);
-
+        // Re-disable all completion buttons in the modal
+        document.querySelectorAll('.participant-btn').forEach(btn => btn.disabled = true);
+        
         const startBtn = document.getElementById('startBtn');
         if (startBtn) startBtn.style.display = 'inline-block';
         if (startBtn) startBtn.disabled = false;

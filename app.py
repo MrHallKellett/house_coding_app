@@ -682,15 +682,22 @@ def complete_matches(completions):
             loser_participant_obj = match["participant2"] if t1 < t2 else match["participant1"]
 
             # --- Logic to advance winner ---
-            # Check if winner is already in the next match to prevent duplicates
-            is_winner_placed = (next_match.get("participant1") and next_match["participant1"]["name"] == winner_participant_obj["name"]) or \
-                               (next_match.get("participant2") and next_match["participant2"]["name"] == winner_participant_obj["name"])
+            # Check if winner is already in any participant slot of the next match
+            is_winner_placed = False
+            for i in range(1, 5): # Check participant1 to participant4
+                p_slot = next_match.get(f"participant{i}")
+                if p_slot and p_slot.get("name") == winner_participant_obj.get("name"):
+                    is_winner_placed = True
+                    break
 
             if not is_winner_placed:
-                if not next_match.get("participant1"):
-                    next_match["participant1"] = winner_participant_obj
-                else:
-                    next_match["participant2"] = winner_participant_obj
+                # Find the first empty participant slot in the next match and place the winner
+                placed = False
+                for i in range(1, 5): # Check participant1 to participant4
+                    if not next_match.get(f"participant{i}"):
+                        next_match[f"participant{i}"] = winner_participant_obj
+                        placed = True
+                        break
 
             # --- Logic to advance loser ---
             if match.get("loser_proceeds_to"):
@@ -718,8 +725,10 @@ def reset_match(match_id):
 
     # Reset match progress
     match["start_time"] = None
-    match["participant1_result"] = None
-    match["participant2_result"] = None
+    # Loop to reset all possible participants
+    for i in range(1, 5):
+        if f"participant{i}_result" in match:
+            match[f"participant{i}_result"] = None
 
     save_bracket(bracket)
     return jsonify({"success": True})

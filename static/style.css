@@ -140,6 +140,15 @@ svg {
     margin: 0 1rem;
 }
 
+/* New layout for 4-participant final */
+.participant-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+    justify-items: center;
+}
+
 /* Modal Content */
 .modal-content {
     background: white;

@@ -494,20 +494,18 @@
         "participant2_result": null,
         "start_time": null
     },
+
+
     {
         "match_num": 31,
         "winner_proceeds_to": null,
         "loser_proceeds_to": null,
         "problem": "3fish_farm.md",
         "problem_difficulty": 3,
-        "participant1": null,
-        "participant1_result": null,
-        "participant2": null,
-        "participant2_result": null,
-        "participant3": null,
-        "participant3_result": null,
-        "participant4": null,
-        "participant4_result": null,
+        "participant1": null, "participant1_result": null,
+        "participant2": null, "participant2_result": null,
+        "participant3": null, "participant3_result": null,
+        "participant4": null, "participant4_result": null,
         "start_time": null,
         "is_final": true
     }
