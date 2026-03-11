@@ -406,3 +406,59 @@ button {
 .confetti-piece:nth-child(3n) {
     border-radius: 50%;
 }
+
+/* Winner Announcement Animation */
+.winner-announcement {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    z-index: 2000; /* On top of everything in the modal */
+    font-size: 4rem;
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+    opacity: 0;
+    animation: winner-pop-in 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards, winner-fade-out 1s 2.5s forwards;
+}
+
+@keyframes winner-pop-in {
+    to {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes winner-fade-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+}
+
+/* Finisher Announcement Animation */
+.finisher-announcement {
+    position: absolute;
+    top: 60%; /* Position slightly lower */
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    z-index: 1999; /* Just below the winner announcement */
+    font-size: 2.5rem; /* Smaller font */
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+    opacity: 0;
+    animation: finisher-pop-in 0.5s 0.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards, winner-fade-out 1s 2.7s forwards;
+}
+
+@keyframes finisher-pop-in {
+    to {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.9;
+    }
+}
+
+/* Re-using winner-fade-out for the exit animation */

@@ -16,6 +16,36 @@ The ith line consists of a single string - the message the ith crew member wants
 
 A single integer, the total length of the strings.
 
+## Example 0
+
+### Input:
+
+    a short
+    message
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    .
+
+### Output:
+
+    15
+
+### Explanation:
+
+The first two lines each contain 7 characters, and the final line contains a single character. The other 14 lines are empty, therefore do not affect the total, which is 15.
+
 ## Example 1
 
 ### Input:

@@ -849,6 +849,26 @@ function getHouseColor(houseCode) {
     return HOUSE_COLORS[houseCode] || HOUSE_COLORS['N/A'];
 }
 
+function getHouseClassName(houseCode) {
+    const houseMap = {
+        'Y': 'youde',
+        'C': 'clementi',
+        'B': 'bowen',
+        'M': 'maclehose'
+    };
+    return houseMap[houseCode] || '';
+}
+
+function getHouseFullName(houseCode) {
+    const houseMap = {
+        'Y': 'Youde',
+        'C': 'Clementi',
+        'B': 'Bowen',
+        'M': 'Maclehose'
+    };
+    return houseMap[houseCode] || houseCode; // Fallback to the code if not found
+}
+
 function getParticipantHouse(participant_obj) {
     if (!participant_obj || typeof participant_obj === 'string') {
         return 'N/A';
@@ -1015,17 +1035,19 @@ async function openMatchModal(matchId) {
     const p2_name_modal = typeof match.participant2 === 'object' ? match.participant2.name : match.participant2;    
     const p1_house_modal = typeof match.participant1 === 'object' ? match.participant1.house : 'N/A';
     const p2_house_modal = typeof match.participant2 === 'object' ? match.participant2.house : 'N/A';
+    const p1_house_class = getHouseClassName(p1_house_modal);
+    const p2_house_class = getHouseClassName(p2_house_modal);
 
     modalTitle.innerHTML = `
         <div class="participant-actions" style="justify-content: center; align-items: center;">
             <div class="participant-column">
-                <button id="p1CompleteBtn" class="participant-btn" style="background-color:${getHouseColor(p1_house_modal)};" onclick="completeMatch(${matchId}, 1)" disabled>${p1_name_modal}</button>
+                <button id="p1CompleteBtn" class="participant-btn ${p1_house_class}" style="background-color:${getHouseColor(p1_house_modal)};" onclick="completeMatch(${matchId}, 1)" disabled>${p1_name_modal}</button>
                 <button id="p1DnfBtn" class="dnf-btn" onclick="dnfParticipant(${matchId}, 1)">DNF</button>
                 <div id="p1Time" class="time-display">${match.participant1_result ? getParticipantTimeOnly(match.participant1_result) : ''}</div>
             </div>
             <span class="vs-separator">vs</span>
             <div class="participant-column">
-                <button id="p2CompleteBtn" class="participant-btn" style="background-color:${getHouseColor(p2_house_modal)};" onclick="completeMatch(${matchId}, 2)" disabled>${p2_name_modal}</button>
+                <button id="p2CompleteBtn" class="participant-btn ${p2_house_class}" style="background-color:${getHouseColor(p2_house_modal)};" onclick="completeMatch(${matchId}, 2)" disabled>${p2_name_modal}</button>
                 <button id="p2DnfBtn" class="dnf-btn" onclick="dnfParticipant(${matchId}, 2)">DNF</button>
                 <div id="p2Time" class="time-display">${match.participant2_result ? getParticipantTimeOnly(match.participant2_result) : ''}</div>
             </div>
@@ -1288,6 +1310,41 @@ async function completeMatch(matchId, participant) {
     completionTimer = setTimeout(sendCompletionBatch, 200);
 }
 
+function showWinnerAnimation(winnerName, winnerHouse, houseColor) {
+    const modalContent = document.querySelector('.modal-content');
+    if (!modalContent) return;
+
+    const winnerHouseFullName = getHouseFullName(winnerHouse);
+
+    const announcement = document.createElement('div');
+    announcement.className = 'winner-announcement';
+    announcement.innerHTML = `${winnerName} from ${winnerHouseFullName} wins!`;
+    announcement.style.color = houseColor; // Set the font color to the house color
+    announcement.style.textShadow = `
+        0 0 7px #fff, 0 0 10px #fff, 0 0 21px #fff, 0 0 42px ${houseColor}, 0 0 82px ${houseColor}, 0 0 92px ${houseColor}`;
+
+    modalContent.parentNode.insertBefore(announcement, modalContent);
+
+    setTimeout(() => announcement.remove(), 3500); // Clean up the element after animation
+}
+
+function showFinisherAnimation(finisherName, finisherHouse, houseColor) {
+    const modalContent = document.querySelector('.modal-content');
+    if (!modalContent) return;
+
+    const finisherHouseFullName = getHouseFullName(finisherHouse);
+
+    const announcement = document.createElement('div');
+    announcement.className = 'finisher-announcement';
+    announcement.innerHTML = `${finisherName} from ${finisherHouseFullName} finishes the problem!`;
+    announcement.style.color = houseColor;
+    announcement.style.textShadow = `0 0 5px #fff, 0 0 10px ${houseColor}`;
+
+    modalContent.parentNode.insertBefore(announcement, modalContent);
+
+    setTimeout(() => announcement.remove(), 3700); // Clean up after animation
+}
+
 function triggerConfetti(element) {
     const confettiContainer = document.createElement('div');
     confettiContainer.className = 'confetti-container';
@@ -1341,6 +1398,35 @@ async function sendCompletionBatch() {
             const updatedMatch = await matchRes.json();
 
             // Update times for both participants in this match
+            const p1_result_before = getParticipantTimeOnly(document.getElementById(`p1Time-${matchId}`)?.textContent || document.getElementById('p1Time')?.textContent);
+            const p2_result_before = getParticipantTimeOnly(document.getElementById(`p2Time-${matchId}`)?.textContent || document.getElementById('p2Time')?.textContent);
+
+            // --- Check for Winner Animation ---
+            // If no one had finished before, and now someone has, they are the winner.
+            if (!p1_result_before && !p2_result_before) {
+                if (updatedMatch.participant1_result && updatedMatch.participant1_result !== "DNF") {
+                    const winner = updatedMatch.participant1;
+                    const houseColor = getHouseColor(winner.house);
+                    showWinnerAnimation(winner.name, winner.house, houseColor);
+                } else if (updatedMatch.participant2_result && updatedMatch.participant2_result !== "DNF") {
+                    const winner = updatedMatch.participant2;
+                    const houseColor = getHouseColor(winner.house);
+                    showWinnerAnimation(winner.name, winner.house, houseColor);
+                }
+            } else if ((p1_result_before && !p2_result_before) || (!p1_result_before && p2_result_before)) {
+                // --- Check for Second Finisher Animation ---
+                // This means one person had finished, and we're processing the second.
+                if (!p1_result_before && updatedMatch.participant1_result && updatedMatch.participant1_result !== "DNF") {
+                    const finisher = updatedMatch.participant1;
+                    const houseColor = getHouseColor(finisher.house);
+                    showFinisherAnimation(finisher.name, finisher.house, houseColor);
+                } else if (!p2_result_before && updatedMatch.participant2_result && updatedMatch.participant2_result !== "DNF") {
+                    const finisher = updatedMatch.participant2;
+                    const houseColor = getHouseColor(finisher.house);
+                    showFinisherAnimation(finisher.name, finisher.house, houseColor);
+                }
+            }
+
             updateCompletionUI(matchId, 1, updatedMatch.participant1_result);
             updateCompletionUI(matchId, 2, updatedMatch.participant2_result);
 
@@ -1455,18 +1541,20 @@ function populateMatchColumn(columnElement, match, problemHtml) {
     const p2_name = getParticipantNameOnly(match.participant2);
     const p1_house = getParticipantHouse(match.participant1);
     const p2_house = getParticipantHouse(match.participant2);
+    const p1_house_class = getHouseClassName(p1_house);
+    const p2_house_class = getHouseClassName(p2_house);
 
     columnElement.innerHTML = `
         <h3 style="margin-top:0;">Match #${match.match_num}</h3>
         <div class="participant-actions">
             <div class="participant-column">
-                <button id="p1CompleteBtn-${match.match_num}" class="participant-btn complete-btn-${match.match_num}" style="background-color:${getHouseColor(p1_house)}; font-size: 1.5rem; padding: 0.5rem;" onclick="completeMatch(${match.match_num}, 1)" disabled>${p1_name}</button>
+                <button id="p1CompleteBtn-${match.match_num}" class="participant-btn complete-btn-${match.match_num} ${p1_house_class}" style="background-color:${getHouseColor(p1_house)}; font-size: 1.5rem; padding: 0.5rem;" onclick="completeMatch(${match.match_num}, 1)" disabled>${p1_name}</button>
                 <button id="p1DnfBtn-${match.match_num}" class="dnf-btn" onclick="dnfParticipant(${match.match_num}, 1)">DNF</button>
                 <div id="p1Time-${match.match_num}" class="time-display">${match.participant1_result ? getParticipantTimeOnly(match.participant1_result) : ''}</div>
             </div>
             <span class="vs-separator" style="font-size: 1rem;">vs</span>
             <div class="participant-column">
-                <button id="p2CompleteBtn-${match.match_num}" class="participant-btn complete-btn-${match.match_num}" style="background-color:${getHouseColor(p2_house)}; font-size: 1.5rem; padding: 0.5rem;" onclick="completeMatch(${match.match_num}, 2)" disabled>${p2_name}</button>
+                <button id="p2CompleteBtn-${match.match_num}" class="participant-btn complete-btn-${match.match_num} ${p2_house_class}" style="background-color:${getHouseColor(p2_house)}; font-size: 1.5rem; padding: 0.5rem;" onclick="completeMatch(${match.match_num}, 2)" disabled>${p2_name}</button>
                 <button id="p2DnfBtn-${match.match_num}" class="dnf-btn" onclick="dnfParticipant(${match.match_num}, 2)">DNF</button>
                 <div id="p2Time-${match.match_num}" class="time-display">${match.participant2_result ? getParticipantTimeOnly(match.participant2_result) : ''}</div>
             </div>
