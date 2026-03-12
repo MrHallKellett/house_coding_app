@@ -319,9 +319,9 @@
             "name": "Caspar",
             "house": "B"
         },
-        "participant1_result": null,
-        "participant2_result": null,
-        "start_time": null
+        "participant1_result": "DNF",
+        "participant2_result": "0:10:06.610126",
+        "start_time": "2026-03-12T09:39:20.893352+08:00"
     },
     {
         "match_num": 19,
@@ -337,9 +337,9 @@
             "name": "Milos & Enya",
             "house": "C"
         },
-        "participant1_result": null,
-        "participant2_result": null,
-        "start_time": null
+        "participant1_result": "DNF",
+        "participant2_result": "DNF",
+        "start_time": "2026-03-12T11:21:31.528190+08:00"
     },
     {
         "match_num": 20,
@@ -355,9 +355,9 @@
             "name": "Nora & Rafi",
             "house": "M"
         },
-        "participant1_result": null,
-        "participant2_result": null,
-        "start_time": null
+        "participant1_result": "0:01:04.939880",
+        "participant2_result": "DNF",
+        "start_time": "2026-03-12T09:39:20.893352+08:00"
     },
     {
         "match_num": 21,
@@ -441,7 +441,10 @@
             "name": "Alvin",
             "house": "M"
         },
-        "participant2": null,
+        "participant2": {
+            "name": "Caspar",
+            "house": "B"
+        },
         "participant1_result": null,
         "participant2_result": null,
         "start_time": null
@@ -452,7 +455,10 @@
         "loser_proceeds_to": null,
         "problem": "3map_markers.md",
         "problem_difficulty": 3,
-        "participant1": null,
+        "participant1": {
+            "name": "Edward",
+            "house": "B"
+        },
         "participant2": null,
         "participant1_result": null,
         "participant2_result": null,
@@ -490,9 +496,13 @@
             "name": "Carl & Oscar",
             "house": "M"
         },
-        "participant1_result": null,
-        "participant2_result": null,
-        "start_time": null
+        "participant1_result": "DNF",
+        "participant2_result": "DNF",
+        "start_time": null,
+        "participant3": {
+            "name": "Hamir",
+            "house": "M"
+        }
     },
     {
         "match_num": 31,
