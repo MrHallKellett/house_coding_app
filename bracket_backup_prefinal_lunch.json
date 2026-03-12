@@ -337,7 +337,7 @@
             "name": "Milos & Enya",
             "house": "C"
         },
-        "participant1_result": "DNF (votes)",
+        "participant1_result": "DNF",
         "participant2_result": "DNF",
         "start_time": "2026-03-12T11:21:31.528190+08:00"
     },
@@ -445,9 +445,9 @@
             "name": "Caspar",
             "house": "B"
         },
-        "participant1_result": "DNF (votes)",
-        "participant2_result": "DNF",
-        "start_time": "2026-03-12T13:01:22.998697+08:00"
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
     },
     {
         "match_num": 26,
@@ -459,17 +459,10 @@
             "name": "Edward",
             "house": "B"
         },
-        "participant2": {
-            "name": "Vivienne",
-            "house": "B"
-        },
-        "participant1_result": "DNF (votes)",
-        "participant2_result": "DNF",
-        "start_time": null,
-        "participant3": {
-            "name": "Milos & Enya",
-            "house": "C"
-        }
+        "participant2": null,
+        "participant1_result": null,
+        "participant2_result": null,
+        "start_time": null
     },
     {
         "match_num": 27,
@@ -485,8 +478,8 @@
             "name": "Leanna",
             "house": "B"
         },
-        "participant1_result": "DNF",
-        "participant2_result": "0:10:00.0",
+        "participant1_result": null,
+        "participant2_result": null,
         "start_time": null
     },
     {
@@ -503,7 +496,7 @@
             "name": "Carl & Oscar",
             "house": "M"
         },
-        "participant1_result": "DNF (votes)",
+        "participant1_result": "DNF",
         "participant2_result": "DNF",
         "start_time": null,
         "participant3": {
@@ -517,27 +510,15 @@
         "loser_proceeds_to": null,
         "problem": "3fish_farm.md",
         "problem_difficulty": 3,
-        "participant1": {
-            "name": "Ryan",
-            "house": "C"
-        },
-        "participant1_result": "0:09:37.421486",
-        "participant2": {
-            "name": "Leanna",
-            "house": "B"
-        },
-        "participant2_result": "0:09:05.401707",
-        "participant3": {
-            "name": "Edward",
-            "house": "B"
-        },
-        "participant3_result": "0:07:47.070616",
-        "participant4": {
-            "name": "Alvin",
-            "house": "M"
-        },
-        "participant4_result": "DNF",
-        "start_time": "2026-03-12T13:41:05.486707+08:00",
+        "participant1": null,
+        "participant1_result": null,
+        "participant2": null,
+        "participant2_result": null,
+        "participant3": null,
+        "participant3_result": null,
+        "participant4": null,
+        "participant4_result": null,
+        "start_time": null,
         "is_final": true
     }
 ]

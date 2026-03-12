@@ -416,8 +416,8 @@ function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
 
     const p1_time_display = getParticipantTimeOnly(match.participant1_result);
     const p2_time_display = getParticipantTimeOnly(match.participant2_result);
-
-
+    const p3_time_display = getParticipantTimeOnly(match.participant3_result);
+    const p4_time_display = getParticipantTimeOnly(match.participant4_result);
 
     const p1_color = getHouseColor(p1_house);
     const p2_color = getHouseColor(p2_house);
@@ -478,18 +478,22 @@ function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
         // Participant 1 (Top-Left)
         if (p1_house !== 'N/A') addNameBg(final_col1_x, final_row1_y, p1_color);
         addText(p1_name_display, final_col1_x, final_row1_y, "14", "bold", p1_house !== 'N/A' ? "white" : "#111");
+        if (p1_time_display) addText(p1_time_display, final_col1_x, final_row1_y + 20, "12", "normal", "#333");
 
         // Participant 2 (Top-Right)
         if (p2_house !== 'N/A') addNameBg(final_col2_x, final_row1_y, p2_color);
         addText(p2_name_display, final_col2_x, final_row1_y, "14", "bold", p2_house !== 'N/A' ? "white" : "#111");
+        if (p2_time_display) addText(p2_time_display, final_col2_x, final_row1_y + 20, "12", "normal", "#333");
 
         // Participant 3 (Bottom-Left)
         if (p3_house !== 'N/A') addNameBg(final_col1_x, final_row2_y, p3_color);
         addText(p3_name_display, final_col1_x, final_row2_y, "14", "bold", p3_house !== 'N/A' ? "white" : "#111");
+        if (p3_time_display) addText(p3_time_display, final_col1_x, final_row2_y + 20, "12", "normal", "#333");
 
         // Participant 4 (Bottom-Right)
         if (p4_house !== 'N/A') addNameBg(final_col2_x, final_row2_y, p4_color);
         addText(p4_name_display, final_col2_x, final_row2_y, "14", "bold", p4_house !== 'N/A' ? "white" : "#111");
+        if (p4_time_display) addText(p4_time_display, final_col2_x, final_row2_y + 20, "12", "normal", "#333");
     } else {
         // Row 1: Names (Standard 2-participant layout)
         if (p1_house !== 'N/A') { // Participant 1
@@ -529,14 +533,14 @@ function drawMatchBox(svg, match, x, y, width, height, borderWidth = 2) {
         } else {
             addText(p2_name_display, col3_x, row1_y, "14", "bold", p2_house !== 'N/A' ? "white" : "#111");
         }
-    }
 
-    // Row 2: Times
-    if (p1_time_display) {
-        addText(p1_time_display, col1_x, row2_y, "12", "normal", "#333");
-    }
-    if (p2_time_display) {
-        addText(p2_time_display, col3_x, row2_y, "12", "normal", "#333");
+        // Row 2: Times (for standard matches)
+        if (p1_time_display) {
+            addText(p1_time_display, col1_x, row2_y, "12", "normal", "#333");
+        }
+        if (p2_time_display) {
+            addText(p2_time_display, col3_x, row2_y, "12", "normal", "#333");
+        }
     }
 
     // Row 3: Problem Name
@@ -934,7 +938,7 @@ function getParticipantNameOnly(participant_obj) {
 
 function getParticipantTimeOnly(result) {
     if (!result) return "";
-    else if (result == "DNF") return "DNF";
+    else if (result.indexOf("DNF") > -1) return result;
     // Format as H:MM:SS
     const parts = result.split(':');
     const h = parts[0];
